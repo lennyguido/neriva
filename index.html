@@ -1190,6 +1190,7 @@ function initTilt() {
 */
 const REF_KEY = 'neriva_ref_codigo';
 const WA_REF = '5491153386599';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi1lLWULjNN9qe8rfsOZmMDUxAMdE6knnVSUkJFAFv2ErL90nckMf5ZnQwdDeEbXnnNA/exec';
 
 function sanitizarCodigo(raw) {
     return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 16);
@@ -1200,9 +1201,10 @@ function getLinkReferido(codigo) {
     return base + '?ref=' + codigo;
 }
 
-function crearCodigo() {
+async function crearCodigo() {
     const input = document.getElementById('refInput');
     const errorEl = document.getElementById('refError');
+    const btn = document.querySelector('.btn-crear-codigo');
     const codigo = sanitizarCodigo(input.value);
     if (codigo.length < 3) {
         input.classList.add('error');
@@ -1211,7 +1213,27 @@ function crearCodigo() {
         return;
     }
     errorEl.textContent = '';
+    btn.textContent = 'Guardando...';
+    btn.disabled = true;
+    try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ tipo: 'nuevo_referido', codigo }),
+        });
+        const json = await res.json();
+        if (!json.ok) {
+            input.classList.add('error');
+            errorEl.textContent = json.msg || 'Ese codigo ya existe, proba con otro.';
+            btn.textContent = 'Crear codigo →';
+            btn.disabled = false;
+            return;
+        }
+    } catch(e) {
+        // Si falla la red igual lo guardamos localmente
+    }
     localStorage.setItem(REF_KEY, codigo);
+    btn.textContent = 'Crear codigo →';
+    btn.disabled = false;
     mostrarCodigoActivo(codigo);
 }
 
@@ -1280,7 +1302,7 @@ function inicializarReferidos() {
     }
 }
 
-// Parchear abrirModal para que el mensaje de WA incluya el codigo referido
+// Parchear abrirModal para incluir referido en WA y registrar en Sheets
 const _abrirModalBase = abrirModal;
 abrirModal = function(p) {
     _abrirModalBase(p);
@@ -1289,6 +1311,19 @@ abrirModal = function(p) {
         const btn = document.getElementById('modalWhatsapp');
         const decoded = decodeURIComponent((btn.href.split('text=')[1] || ''));
         btn.href = 'https://wa.me/' + WA_REF + '?text=' + encodeURIComponent(decoded + ' -- Referido por: ' + refPor);
+        // Registrar compra en Sheets cuando el usuario hace click en el boton de WA
+        btn.addEventListener('click', function onCompra() {
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    tipo: 'nueva_compra',
+                    codigo: refPor,
+                    producto: p.nombre,
+                    monto: p.precioOferta || p.precio
+                })
+            }).catch(() => {});
+            btn.removeEventListener('click', onCompra);
+        });
     }
 };
 
