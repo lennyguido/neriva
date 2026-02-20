@@ -1,1 +1,54 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Neriva Products</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            margin: 0;\n            padding: 20px;\n        }\n        .product-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));\n            gap: 16px;\n        }\n        .product {\n            background: #f4f4f4;\n            padding: 10px;\n            border: 1px solid #ddd;\n            border-radius: 5px;\n            text-align: center;\n        }\n    </style>\n</head>\n<body>\n    <h1>Our Products</h1>\n    <div class="product-grid">\n        <div class="product">Product 1</div>\n        <div class="product">Product 2</div>\n        <div class="product">Product 3</div>\n        <div class="product">Product 4</div>\n        <div class="product">Product 5</div>\n        <div class="product">Product 6</div>\n    </div>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>NERIVA</title>
+</head>
+<body>
+    <header>
+        <h1>NERIVA Branding</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="productos-grid">
+            <div class="producto">
+                <h2>Product 1</h2>
+                <p>Description of Product 1</p>
+            </div>
+            <div class="producto">
+                <h2>Product 2</h2>
+                <p>Description of Product 2</p>
+            </div>
+            <div class="producto">
+                <h2>Product 3</h2>
+                <p>Description of Product 3</p>
+            </div>
+            <div class="producto">
+                <h2>Product 4</h2>
+                <p>Description of Product 4</p>
+            </div>
+        </section>
+
+        <modal id="myModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p>This is a modal!</p>
+            </div>
+        </modal>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 NERIVA. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
