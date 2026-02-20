@@ -27,7 +27,7 @@
             --dark-gray: #0a0a0a;
         }
 
-        /* HEADER */
+        /* ─── HEADER ─── */
         header {
             background: rgba(0, 0, 0, 0.98);
             backdrop-filter: blur(20px);
@@ -67,6 +67,7 @@
             font-size: 0.95rem;
             transition: all 0.3s;
             box-shadow: 0 0 20px var(--green-glow);
+            white-space: nowrap;
         }
 
         .header-cta:hover {
@@ -74,7 +75,7 @@
             box-shadow: 0 0 30px var(--green-glow);
         }
 
-        /* HERO */
+        /* ─── HERO ─── */
         .hero {
             padding: 8rem 5% 6rem;
             text-align: center;
@@ -150,7 +151,7 @@
             backdrop-filter: blur(10px);
         }
 
-        /* FILTROS */
+        /* ─── FILTROS ─── */
         .filters {
             padding: 2.5rem 5%;
             background: var(--dark-gray);
@@ -182,6 +183,10 @@
             transition: all 0.3s;
         }
 
+        .search-box::placeholder {
+            color: var(--gray);
+        }
+
         .search-box:focus {
             outline: none;
             border-color: var(--green);
@@ -199,6 +204,7 @@
             transition: all 0.3s;
             font-size: 0.95rem;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .filter-btn:hover {
@@ -214,7 +220,7 @@
             box-shadow: 0 0 20px var(--green-glow);
         }
 
-        /* PRODUCTOS */
+        /* ─── PRODUCTOS ─── */
         .productos-section {
             padding: 5rem 5%;
             max-width: 1400px;
@@ -351,7 +357,7 @@
             box-shadow: 0 0 20px var(--green-glow);
         }
 
-        /* MODAL */
+        /* ─── MODAL ─── */
         .modal {
             display: none;
             position: fixed;
@@ -503,7 +509,7 @@
             box-shadow: 0 0 40px var(--green-glow);
         }
 
-        /* FOOTER */
+        /* ─── FOOTER ─── */
         footer {
             background: linear-gradient(180deg, var(--dark-gray) 0%, #000 100%);
             border-top: 1px solid rgba(0, 255, 65, 0.2);
@@ -532,22 +538,12 @@
             margin-bottom: 3rem;
         }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 3rem;
-            text-align: left;
+        .footer-contact {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
             margin-bottom: 3rem;
-            padding: 0 2rem;
-        }
-
-        .footer-column h4 {
-            color: var(--green);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 1.5rem;
-            font-weight: 700;
         }
 
         .footer-link {
@@ -599,26 +595,245 @@
             margin-bottom: 2rem;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 968px) {
-            .hero h1 { font-size: 3rem; }
-            .hero-subtitle { font-size: 1.2rem; }
-            .productos-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
-            .modal-body { grid-template-columns: 1fr; padding: 2rem; gap: 2rem; }
-            .modal-imagen { height: 350px; }
-            .filter-container { flex-direction: column; }
-            .search-box { min-width: 100%; }
-            .header-cta { font-size: 0.85rem; padding: 0.6rem 1.2rem; }
-            .filters { top: 69px; }
-            .footer-grid { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+        /* ══════════════════════════════════════════
+           RESPONSIVE — pantallas ≤ 768px
+        ══════════════════════════════════════════ */
+        @media (max-width: 768px) {
+
+            /* ── Header ── */
+            header {
+                padding: 1rem 4%;
+                gap: 0.5rem;
+            }
+
+            .header-logo {
+                font-size: 1.6rem;
+            }
+
+            .header-cta {
+                font-size: 0.82rem;
+                padding: 0.6rem 1.1rem;
+            }
+
+            /* ── Hero ── */
+            .hero {
+                padding: 4.5rem 5% 3.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+                letter-spacing: -1px;
+                margin-bottom: 1rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
+            }
+
+            .hero-badges {
+                gap: 0.7rem;
+                margin-top: 1.2rem;
+            }
+
+            .badge {
+                font-size: 0.78rem;
+                padding: 0.55rem 1rem;
+            }
+
+            /* ── Filtros ── */
+            .filters {
+                padding: 1.2rem 4%;
+                /* El header en móvil mide ~62px */
+                top: 62px;
+            }
+
+            .filter-container {
+                flex-direction: column;
+                gap: 0.8rem;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: unset;
+                width: 100%;
+                padding: 0.9rem 1.4rem;
+                font-size: 0.95rem;
+            }
+
+            /* Contenedor de botones de categoría: scroll horizontal */
+            #filterButtons {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                gap: 0.6rem !important;
+                padding-bottom: 4px;
+                /* Ocultar scrollbar visualmente */
+                scrollbar-width: none;
+            }
+
+            #filterButtons::-webkit-scrollbar {
+                display: none;
+            }
+
+            .filter-btn {
+                flex-shrink: 0;
+                padding: 0.7rem 1.2rem;
+                font-size: 0.85rem;
+            }
+
+            /* ── Grid de productos ── */
+            .productos-section {
+                padding: 3rem 4%;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 1.8rem;
+            }
+
+            .productos-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .producto-imagen {
+                height: 240px;
+            }
+
+            .producto-info {
+                padding: 1.4rem;
+            }
+
+            .producto-nombre {
+                font-size: 1.1rem;
+                min-height: unset;
+            }
+
+            .producto-precio {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .btn-ver-mas {
+                padding: 0.75rem 1.4rem;
+                font-size: 0.9rem;
+            }
+
+            /* ── Modal ── */
+            .modal {
+                padding: 0;
+                align-items: flex-end;  /* slide desde abajo en mobile */
+            }
+
+            .modal-content {
+                border-radius: 20px 20px 0 0;
+                max-height: 92vh;
+                overflow-y: auto;
+                width: 100%;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+                padding: 1.6rem 1.4rem 2rem;
+                gap: 1.5rem;
+            }
+
+            .modal-close {
+                top: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+                font-size: 1.4rem;
+            }
+
+            .modal-imagen {
+                height: 260px;
+            }
+
+            .modal-info h2 {
+                font-size: 1.6rem;
+                padding-right: 2.5rem; /* evitar solapamiento con botón cerrar */
+            }
+
+            .modal-precio {
+                font-size: 2.4rem;
+                margin: 1rem 0;
+            }
+
+            .modal-descripcion {
+                font-size: 0.95rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .modal-features {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .btn-whatsapp {
+                padding: 1.1rem 2rem;
+                font-size: 1rem;
+            }
+
+            /* ── Footer ── */
+            footer {
+                padding: 3rem 5% 1.5rem;
+                margin-top: 3rem;
+            }
+
+            .footer-logo {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .footer-tagline {
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
+            }
+
+            .footer-link:hover {
+                transform: none;
+            }
+
+            .footer-bottom {
+                font-size: 0.82rem;
+            }
+
+            /* ── Empty state ── */
+            .empty-state {
+                padding: 4rem 1rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.6rem;
+            }
+
+            .empty-state p {
+                font-size: 1rem;
+            }
         }
 
-        @media (max-width: 640px) {
-            .hero { padding: 4rem 5% 3rem; }
-            .hero h1 { font-size: 2.2rem; }
-            .section-title { font-size: 1.8rem; }
-            .hero-badges { gap: 1rem; }
-            .badge { font-size: 0.8rem; padding: 0.6rem 1.2rem; }
+        /* Ajuste fino para pantallas muy pequeñas (≤ 380px) */
+        @media (max-width: 380px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .header-logo {
+                font-size: 1.4rem;
+            }
+
+            .header-cta {
+                font-size: 0.76rem;
+                padding: 0.5rem 0.9rem;
+            }
         }
     </style>
 </head>
@@ -684,30 +899,13 @@
             <div class="footer-logo">NERIVA</div>
             <p class="footer-tagline">Tu tienda online</p>
             
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <h4>Contacto</h4>
-                    <a href="https://wa.me/5491153386599" target="_blank" class="footer-link">
-                        <span class="footer-icon">💬</span> WhatsApp: +54 9 11 5338-6599
-                    </a>
-                    <a href="https://instagram.com/nerivashop" target="_blank" class="footer-link">
-                        <span class="footer-icon">📸</span> Instagram: @nerivashop
-                    </a>
-                </div>
-                
-                <div class="footer-column">
-                    <h4>Información</h4>
-                    <a href="#" class="footer-link">Formas de pago</a>
-                    <a href="#" class="footer-link">Envíos y entregas</a>
-                    <a href="#" class="footer-link">Garantías</a>
-                </div>
-                
-                <div class="footer-column">
-                    <h4>Atención al cliente</h4>
-                    <a href="#" class="footer-link">Preguntas frecuentes</a>
-                    <a href="#" class="footer-link">Política de devolución</a>
-                    <a href="#" class="footer-link">Términos y condiciones</a>
-                </div>
+            <div class="footer-contact">
+                <a href="https://wa.me/5491153386599" target="_blank" class="footer-link">
+                    <span class="footer-icon">💬</span> WhatsApp: +54 9 11 5338-6599
+                </a>
+                <a href="https://instagram.com/nerivashop" target="_blank" class="footer-link">
+                    <span class="footer-icon">📸</span> Instagram: @nerivashop
+                </a>
             </div>
             
             <div class="footer-divider"></div>
@@ -743,7 +941,6 @@ async function cargarProductosDesdeSheets() {
 
         todosLosProductos = productos;
 
-        // Generar botones de categoría automáticamente desde los datos
         generarFiltros(productos);
         renderizarProductos(productos);
 
@@ -759,7 +956,6 @@ async function cargarProductosDesdeSheets() {
 }
 
 function generarFiltros(productos) {
-    // Obtener categorías únicas y ordenarlas
     const categorias = [...new Set(productos.map(p => p.categoria).filter(Boolean))].sort();
 
     const container = document.getElementById('filterButtons');
@@ -767,7 +963,6 @@ function generarFiltros(productos) {
     container.style.gap = '1rem';
     container.style.flexWrap = 'wrap';
 
-    // Botón "Todos"
     const btnTodos = document.createElement('button');
     btnTodos.className = 'filter-btn active';
     btnTodos.dataset.category = 'todos';
@@ -775,7 +970,6 @@ function generarFiltros(productos) {
     btnTodos.addEventListener('click', () => filtrarPor('todos', btnTodos));
     container.appendChild(btnTodos);
 
-    // Un botón por cada categoría que exista en los datos
     categorias.forEach(cat => {
         const btn = document.createElement('button');
         btn.className = 'filter-btn';
@@ -787,12 +981,10 @@ function generarFiltros(productos) {
 }
 
 function filtrarPor(categoria, btnClickeado) {
-    // Actualizar botón activo
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btnClickeado.classList.add('active');
     categoriaActiva = categoria;
 
-    // Filtrar y limpiar búsqueda
     document.getElementById('searchInput').value = '';
     const lista = categoria === 'todos'
         ? todosLosProductos
@@ -861,20 +1053,16 @@ function closeModal() {
     document.body.style.overflow = '';
 }
 
-// Cerrar modal al hacer click afuera
 document.getElementById('productoModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
 
-// Cerrar modal con Escape
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
 });
 
-// Búsqueda en tiempo real
 document.getElementById('searchInput').addEventListener('input', e => {
     const t = e.target.value.toLowerCase();
-    // Quitar categoría activa al buscar
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     const btnTodos = document.querySelector('[data-category="todos"]');
     if (btnTodos) btnTodos.classList.add('active');
