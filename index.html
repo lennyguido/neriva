@@ -1414,7 +1414,7 @@ function initTilt() {
 /* ══ REFERIDOS ══ */
 const REF_KEY = 'neriva_ref_codigo';
 const WA_REF = '5491153386599';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwurDBPfU6PdG82fD_dLYdtcmic4ZC-MAXu2pwIaImwaMHAfSHbT7pHQPEqEW18Gd2Aiw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSbkY0P0YhM4WN_0TQlIaucTMFUF0fIooHTsxcvSA_x4NknujcoIZB-Riqnm9YzNzVxw/exec';
 
 function sanitizarCodigo(raw) {
     return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 16);
@@ -1440,10 +1440,8 @@ async function crearCodigo() {
     btn.textContent = 'Guardando...';
     btn.disabled = true;
     try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ tipo: 'nuevo_referido', codigo }),
-        });
+        const url = APPS_SCRIPT_URL + '?tipo=nuevo_referido&codigo=' + encodeURIComponent(codigo);
+        const res = await fetch(url);
         const json = await res.json();
         if (!json.ok) {
             input.classList.add('error');
@@ -1533,15 +1531,8 @@ abrirModal = function(p) {
         const decoded = decodeURIComponent((btn.href.split('text=')[1] || ''));
         btn.href = 'https://wa.me/' + WA_REF + '?text=' + encodeURIComponent(decoded + ' -- Referido por: ' + refPor);
         btn.addEventListener('click', function onCompra() {
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    tipo: 'nueva_compra',
-                    codigo: refPor,
-                    producto: p.nombre,
-                    monto: p.precioOferta || p.precio
-                })
-            }).catch(() => {});
+            const url = APPS_SCRIPT_URL + '?tipo=nueva_compra&codigo=' + encodeURIComponent(refPor) + '&producto=' + encodeURIComponent(p.nombre) + '&monto=' + encodeURIComponent(p.precioOferta || p.precio);
+            fetch(url).catch(() => {});
             btn.removeEventListener('click', onCompra);
         });
     }
