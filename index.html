@@ -1215,9 +1215,15 @@ async function cargarProductosDesdeSheets() {
 
         const productos = json.table.rows.map((r, i) => {
             const c = r.c.map(col => col ? col.v : '');
-            const precio = parseFloat(String(c[2]).replace(/[^\d.]/g, '')) || 0;
+            
+            // ← AQUÍ ESTÁ EL CAMBIO: detectamos si el precio es "?"
+            const precioRaw = String(c[2]).trim();
+            const sinStock = precioRaw === '?' || precioRaw.includes('?') || precioRaw === '';
+            const precio = sinStock ? 0 : (parseFloat(precioRaw.replace(/[^\d.]/g, '')) || 0);
+            
             const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
             const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
+            
             return {
                 id: i + 1,
                 nombre: c[0] || '',
@@ -1225,7 +1231,8 @@ async function cargarProductosDesdeSheets() {
                 precio,
                 descripcion: c[3] || '',
                 imagen: c[4] ? String(c[4]).trim() : '',
-                precioOferta
+                precioOferta,
+                sinStock  // ← nueva propiedad
             };
         }).filter(p => p.nombre);
 
@@ -1284,24 +1291,31 @@ function renderizarProductos(productos) {
         card.className = 'producto-card reveal-card';
         card.style.transitionDelay = `${(i % 6) * 80}ms`;
 
-        const tieneOferta = p.precioOferta !== null;
+        const tieneOferta = p.precioOferta !== null && !p.sinStock;
         const porcDesc = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
         const precioMostrado = tieneOferta ? p.precioOferta : p.precio;
 
         card.innerHTML = `
             <div class="producto-imagen">
                 ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">` : `<div class="no-image">📦</div>`}
-                ${tieneOferta ? `<div class="badge-oferta">🔥 -${porcDesc}%</div>` : ''}
+                ${p.sinStock 
+                    ? `<div class="badge-oferta" style="background: #666; box-shadow: 0 0 12px rgba(100,100,100,0.4); animation: none;">SIN STOCK</div>` 
+                    : tieneOferta 
+                        ? `<div class="badge-oferta">🔥 -${porcDesc}%</div>` 
+                        : ''}
                 <div class="card-overlay"></div>
             </div>
             <div class="producto-info">
                 <div class="producto-categoria">${p.categoria}</div>
                 <h3 class="producto-nombre">${p.nombre}</h3>
                 <div class="precio-wrapper">
-                    <div class="producto-precio">$${precioMostrado.toLocaleString('es-AR')}</div>
-                    ${tieneOferta ? `
-                        <div class="producto-precio-original">$${p.precio.toLocaleString('es-AR')}</div>
-                        <div class="producto-descuento">-${porcDesc}%</div>` : ''}
+                    ${p.sinStock 
+                        ? `<div class="producto-precio" style="color: #666; font-size: 1.2rem;">SIN STOCK</div>`
+                        : `<div class="producto-precio">$${precioMostrado.toLocaleString('es-AR')}</div>
+                           ${tieneOferta ? `
+                               <div class="producto-precio-original">$${p.precio.toLocaleString('es-AR')}</div>
+                               <div class="producto-descuento">-${porcDesc}%</div>` : ''}`
+                    }
                 </div>
                 <span class="btn-ver-mas"><span>Ver →</span></span>
             </div>`;
@@ -1315,18 +1329,29 @@ function renderizarProductos(productos) {
 
 /* ─── MODAL ─── */
 function abrirModal(p) {
-    const tieneOferta = p.precioOferta !== null;
+    const tieneOferta = p.precioOferta !== null && !p.sinStock;
     const porcDesc = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
     const precioMostrado = tieneOferta ? p.precioOferta : p.precio;
 
     document.getElementById('modalCategoria').textContent = p.categoria;
     document.getElementById('modalNombre').textContent = p.nombre;
-    document.getElementById('modalPrecio').textContent = `$${precioMostrado.toLocaleString('es-AR')}`;
+    
+    // ← AQUÍ MOSTRAMOS "SIN STOCK" EN EL MODAL
+    if (p.sinStock) {
+        document.getElementById('modalPrecio').textContent = 'SIN STOCK';
+        document.getElementById('modalPrecio').style.color = '#666';
+        document.getElementById('modalPrecio').style.animation = 'none';
+    } else {
+        document.getElementById('modalPrecio').textContent = `$${precioMostrado.toLocaleString('es-AR')}`;
+        document.getElementById('modalPrecio').style.color = 'var(--green)';
+        document.getElementById('modalPrecio').style.animation = 'pricePulse 3s ease-in-out infinite';
+    }
+    
     document.getElementById('modalDescripcion').textContent = p.descripcion;
 
     const elOrig = document.getElementById('modalPrecioOriginal');
     const elBadge = document.getElementById('modalDescuentoBadge');
-    if (tieneOferta) {
+    if (tieneOferta && !p.sinStock) {
         elOrig.textContent = `$${p.precio.toLocaleString('es-AR')}`;
         elOrig.style.display = 'block';
         elBadge.textContent = `-${porcDesc}% OFF`;
@@ -1337,11 +1362,19 @@ function abrirModal(p) {
     }
 
     document.getElementById('modalImagenContainer').innerHTML = p.imagen
-        ? `${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
+        ? `${p.sinStock 
+            ? `<div class="modal-badge-oferta" style="background: #666; box-shadow: 0 0 15px rgba(100,100,100,0.4); animation: none;">SIN STOCK</div>` 
+            : tieneOferta 
+                ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` 
+                : ''}
            <img src="${p.imagen}" alt="${p.nombre}">`
         : `<div class="no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;">📦</div>`;
 
-    const msg = `Hola! Me interesa ${p.nombre} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta ? ` (oferta, antes $${p.precio.toLocaleString('es-AR')})` : ''}`;
+    // ← MENSAJE DE WHATSAPP DIFERENTE SI ESTÁ SIN STOCK
+    const msg = p.sinStock 
+        ? `Hola! Quiero consultar sobre ${p.nombre} (sin stock actualmente)`
+        : `Hola! Me interesa ${p.nombre} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta ? ` (oferta, antes $${p.precio.toLocaleString('es-AR')})` : ''}`;
+    
     document.getElementById('modalWhatsapp').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     document.getElementById('productoModal').classList.add('active');
