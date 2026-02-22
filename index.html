@@ -863,6 +863,207 @@
             .testimonios-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
         }
 
+
+        /* ══ FLASH BANNER ══ */
+        .flash-banner {
+            display: none;
+            margin: 0 5% 2rem;
+            background: linear-gradient(135deg, #1a0000 0%, #0d0000 50%, #1a0500 100%);
+            border: 1px solid rgba(255,59,59,0.4);
+            border-radius: 10px;
+            padding: 2rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .flash-banner.visible { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+        .flash-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,59,59,0.05) 50%, transparent 100%);
+            animation: flashSweep 3s ease-in-out infinite;
+        }
+        @keyframes flashSweep { 0%,100%{transform:translateX(-100%)} 50%{transform:translateX(100%)} }
+        .flash-banner-left { display: flex; align-items: center; gap: 1.2rem; position: relative; z-index: 1; }
+        .flash-icon { font-size: 2.5rem; animation: flashBounce 1s ease-in-out infinite; }
+        @keyframes flashBounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+        .flash-text h3 { font-family: 'Orbitron', monospace; font-size: 1.1rem; color: var(--red); letter-spacing: 2px; margin-bottom: 0.3rem; }
+        .flash-text p { font-size: 0.85rem; color: #aaa; }
+        .flash-text strong { color: #fff; }
+        .flash-count {
+            background: var(--red);
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 25px rgba(255,59,59,0.5);
+            animation: pulse-red 1.5s ease-in-out infinite;
+            flex-shrink: 0;
+            position: relative; z-index: 1;
+        }
+        .btn-ver-flash {
+            background: var(--red);
+            color: #fff;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+            position: relative; z-index: 1;
+            box-shadow: 0 0 20px rgba(255,59,59,0.3);
+        }
+        .btn-ver-flash:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,59,59,0.5); }
+
+        /* ══ CARRITO ══ */
+        .carrito-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid rgba(0,255,65,0.4);
+            color: var(--green);
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 900;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0,255,65,0.15);
+        }
+        .carrito-fab:hover { box-shadow: 0 0 30px rgba(0,255,65,0.35); transform: scale(1.1); }
+        .carrito-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 900;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            display: none;
+            align-items: center; justify-content: center;
+        }
+        .carrito-badge.visible { display: flex; }
+
+        .carrito-panel {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; max-width: 420px;
+            background: linear-gradient(145deg, #111, #090909);
+            border: 1px solid rgba(0,255,65,0.2);
+            border-radius: 12px 12px 0 0;
+            z-index: 3500;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            max-height: 75vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+        }
+        .carrito-panel.open { transform: translateY(0); }
+        .carrito-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(0,255,65,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .carrito-header h3 { font-family: 'Orbitron', monospace; font-size: 0.9rem; color: var(--green); letter-spacing: 2px; }
+        .carrito-cerrar { background: none; border: none; color: #666; font-size: 1.4rem; cursor: pointer; transition: color 0.2s; }
+        .carrito-cerrar:hover { color: #fff; }
+        .carrito-items { overflow-y: auto; flex: 1; padding: 0.8rem 1.5rem; }
+        .carrito-empty { text-align: center; padding: 2rem; color: #444; font-size: 0.88rem; }
+        .carrito-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .carrito-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; background: #111; }
+        .carrito-item-info { flex: 1; }
+        .carrito-item-info span { display: block; font-size: 0.82rem; color: #ccc; }
+        .carrito-item-info strong { font-size: 0.88rem; color: var(--green); font-family: 'Orbitron', monospace; }
+        .carrito-item-remove { background: none; border: none; color: #444; font-size: 1rem; cursor: pointer; transition: color 0.2s; flex-shrink: 0; }
+        .carrito-item-remove:hover { color: var(--red); }
+        .carrito-footer {
+            padding: 1.2rem 1.5rem;
+            border-top: 1px solid rgba(0,255,65,0.1);
+            flex-shrink: 0;
+        }
+        .carrito-total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+        .carrito-total span { color: #777; font-size: 0.85rem; }
+        .carrito-total strong { font-family: 'Orbitron', monospace; font-size: 1.3rem; color: var(--green); }
+        .btn-carrito-wa {
+            width: 100%;
+            background: var(--green);
+            color: #000;
+            border: none;
+            padding: 1rem;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 0 20px rgba(0,255,65,0.3);
+        }
+        .btn-carrito-wa:hover { box-shadow: 0 0 35px rgba(0,255,65,0.5); transform: translateY(-1px); }
+        .btn-agregar-carrito {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(0,255,65,0.3);
+            color: var(--green);
+            padding: 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s;
+            margin-top: 0.8rem;
+        }
+        .btn-agregar-carrito:hover { background: rgba(0,255,65,0.1); border-color: var(--green); }
+        .btn-agregar-carrito.agregado { background: rgba(0,255,65,0.15); color: #fff; }
+
+        /* ══ VIENDO AHORA (social proof) ══ */
+        .viendo-ahora {
+            font-size: 0.78rem;
+            color: #ff9944;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+            animation: fadeToggle 4s ease-in-out infinite;
+        }
+        @keyframes fadeToggle { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+        /* ══ BOTÓN VOLVER ARRIBA ══ */
+        .btn-top {
+            position: fixed;
+            bottom: 5rem; right: 1.5rem;
+            background: rgba(0,0,0,0.85);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #666;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            z-index: 890;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        .btn-top.visible { opacity: 1; transform: translateY(0); }
+        .btn-top:hover { color: var(--green); border-color: rgba(0,255,65,0.3); box-shadow: 0 0 12px rgba(0,255,65,0.15); }
+
         /* botón flotante referidos */
         .btn-referidos-float {
             position: fixed;
@@ -935,6 +1136,20 @@
             <input type="text" class="search-box" id="searchInput" placeholder="/ buscar productos...">
             <div id="filterButtons"></div>
         </div>
+    </div>
+
+
+    <!-- FLASH BANNER -->
+    <div class="flash-banner" id="flashBanner" onclick="verFlash()">
+        <div class="flash-banner-left">
+            <div class="flash-icon">🔥</div>
+            <div class="flash-text">
+                <h3>DESCUENTOS FLASH</h3>
+                <p>Ofertas por tiempo limitado — <strong id="flashNombres"></strong></p>
+            </div>
+        </div>
+        <div class="flash-count" id="flashCount">0</div>
+        <button class="btn-ver-flash">Ver ofertas →</button>
     </div>
 
     <section class="productos-section" id="productos">
@@ -1044,6 +1259,7 @@
                         <p>Consultá disponibilidad y medios de pago por WhatsApp.</p>
                     </div>
                     <a href="#" class="btn-whatsapp" id="modalWhatsapp" target="_blank">💬 Comprar por WhatsApp</a>
+                    <button class="btn-agregar-carrito" id="btnAgregarCarrito" onclick="agregarAlCarrito()">+ Agregar a mi lista</button>
                 </div>
             </div>
         </div>
@@ -1106,6 +1322,7 @@ async function cargarProductosDesdeSheets() {
         generarFiltros(productos);
         renderizarProductos(productos);
         cargarTestimonios(productos);
+        iniciarFlashBanner(productos);
 
     } catch (err) {
         console.error('ERROR:', err);
@@ -1420,6 +1637,122 @@ function cargarTestimonios(productos) {
     observeCards();
 }
 
+
+/* ══ FLASH BANNER ══ */
+function iniciarFlashBanner(productos) {
+    const flash = productos.filter(p => p.precioOferta !== null && !p.sinStock);
+    if (!flash.length) return;
+    const banner = document.getElementById('flashBanner');
+    document.getElementById('flashCount').textContent = flash.length;
+    const nombres = flash.slice(0, 2).map(p => p.nombre.split(' ').slice(0,2).join(' ')).join(', ');
+    document.getElementById('flashNombres').textContent = nombres + (flash.length > 2 ? ' y más...' : '');
+    banner.classList.add('visible');
+}
+
+function verFlash() {
+    const btn = document.querySelector('[data-category="__flash__"]');
+    if (btn) {
+        filtrarPor('__flash__', btn);
+    }
+    document.getElementById('productos').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══ CARRITO ══ */
+let carrito = [];
+let productoActual = null;
+
+function toggleCarrito() {
+    document.getElementById('carritoPanel').classList.toggle('open');
+}
+
+function agregarAlCarrito() {
+    if (!productoActual) return;
+    const existe = carrito.find(i => i.id === productoActual.id);
+    if (!existe) {
+        carrito.push({...productoActual});
+    }
+    actualizarCarritoUI();
+    const btn = document.getElementById('btnAgregarCarrito');
+    btn.textContent = '✓ Agregado a tu lista';
+    btn.classList.add('agregado');
+    setTimeout(() => {
+        btn.textContent = '+ Agregar a mi lista';
+        btn.classList.remove('agregado');
+    }, 2000);
+}
+
+function quitarDelCarrito(id) {
+    carrito = carrito.filter(i => i.id !== id);
+    actualizarCarritoUI();
+}
+
+function actualizarCarritoUI() {
+    const badge = document.getElementById('carritoBadge');
+    const itemsEl = document.getElementById('carritoItems');
+    const totalEl = document.getElementById('carritoTotal');
+
+    badge.textContent = carrito.length;
+    badge.classList.toggle('visible', carrito.length > 0);
+
+    if (!carrito.length) {
+        itemsEl.innerHTML = '<div class="carrito-empty">Tu lista está vacía.<br>Agregá productos desde el catálogo.</div>';
+        totalEl.textContent = '$0';
+        return;
+    }
+
+    let total = 0;
+    itemsEl.innerHTML = '';
+    carrito.forEach(p => {
+        const precio = p.precioOferta || p.precio;
+        if (!p.sinStock) total += precio;
+        const div = document.createElement('div');
+        div.className = 'carrito-item';
+        div.innerHTML = `
+            ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}">` : '<div style="width:48px;height:48px;background:#111;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📦</div>'}
+            <div class="carrito-item-info">
+                <span>${p.nombre}</span>
+                <strong>${p.sinStock ? 'Sin stock' : '$' + precio.toLocaleString('es-AR')}</strong>
+            </div>
+            <button class="carrito-item-remove" onclick="quitarDelCarrito(${p.id})">✕</button>
+        `;
+        itemsEl.appendChild(div);
+    });
+    totalEl.textContent = '$' + total.toLocaleString('es-AR');
+}
+
+function enviarCarritoWA() {
+    if (!carrito.length) return;
+    const ref = sessionStorage.getItem('neriva_ref_por');
+    let msg = 'Hola! Me interesan estos productos:
+
+';
+    carrito.forEach(p => {
+        const precio = p.precioOferta || p.precio;
+        msg += `• ${p.nombre} - $${p.sinStock ? 'Consultar stock' : precio.toLocaleString('es-AR')}
+`;
+    });
+    const total = carrito.filter(p => !p.sinStock).reduce((s, p) => s + (p.precioOferta || p.precio), 0);
+    msg += `
+Total estimado: $${total.toLocaleString('es-AR')}`;
+    if (ref) msg += `
+
+-- Referido por: ${ref}`;
+    window.open('https://wa.me/5491153386599?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ══ SOCIAL PROOF (viendo ahora) ══ */
+function mostrarViendoAhora() {
+    const el = document.getElementById('viendoAhora');
+    if (!el) return;
+    const n = Math.floor(Math.random() * 18) + 5;
+    el.textContent = '👁 ' + n + ' personas viendo esto ahora';
+}
+
+/* ══ SCROLL TOP ══ */
+window.addEventListener('scroll', () => {
+    document.getElementById('btnTop').classList.toggle('visible', window.scrollY > 600);
+});
+
 function inicializarReferidos() {
     const guardado = localStorage.getItem(REF_KEY);
     if (guardado) mostrarCodigoActivo(guardado);
@@ -1466,6 +1799,33 @@ observeAll();
 initTilt();
 cargarProductosDesdeSheets();
 </script>
+
+
+    <!-- CARRITO -->
+    <div class="carrito-fab" onclick="toggleCarrito()" title="Mi lista">
+        🛒
+        <div class="carrito-badge" id="carritoBadge">0</div>
+    </div>
+
+    <div class="carrito-panel" id="carritoPanel">
+        <div class="carrito-header">
+            <h3>MI LISTA</h3>
+            <button class="carrito-cerrar" onclick="toggleCarrito()">×</button>
+        </div>
+        <div class="carrito-items" id="carritoItems">
+            <div class="carrito-empty">Tu lista está vacía.<br>Agregá productos desde el catálogo.</div>
+        </div>
+        <div class="carrito-footer">
+            <div class="carrito-total">
+                <span>Total estimado</span>
+                <strong id="carritoTotal">$0</strong>
+            </div>
+            <button class="btn-carrito-wa" onclick="enviarCarritoWA()">💬 Consultar todo por WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- VOLVER ARRIBA -->
+    <button class="btn-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
     <a href="#referidos" class="btn-referidos-float" onclick="document.getElementById('referidos').scrollIntoView({behavior:'smooth'});return false;">
         <span class="dot"></span> Referidos
