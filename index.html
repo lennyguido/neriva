@@ -1097,7 +1097,8 @@ async function cargarProductosDesdeSheets() {
                 precio,
                 descripcion: c[3] || '',
                 imagen: c[4] ? String(c[4]).trim() : '',
-                precioOferta
+                precioOferta,
+                captura: c[6] ? String(c[6]).trim() : ''
             };
         }).filter(p => p.nombre);
 
