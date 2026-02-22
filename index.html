@@ -835,6 +835,34 @@
         }
 
 
+
+        /* TESTIMONIOS */
+        .testimonios-section { padding: 4rem 5%; background: #000; }
+        .testimonios-inner { max-width: 1000px; margin: 0 auto; }
+        .testimonios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; margin-top: 2rem; }
+        .testimonio-card {
+            background: #0d0d0d;
+            border: 1px solid rgba(0,255,65,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .testimonio-card:hover { border-color: rgba(0,255,65,0.3); box-shadow: 0 0 20px rgba(0,255,65,0.07); }
+        .testimonio-card img { width: 100%; display: block; object-fit: cover; max-height: 320px; }
+        .testimonio-card .no-cap { height: 180px; display: flex; align-items: center; justify-content: center; color: #333; font-size: 0.8rem; }
+
+        /* INFO ENVÍO / PAGO */
+        .info-section { padding: 3rem 5%; background: #050505; border-top: 1px solid rgba(0,255,65,0.08); border-bottom: 1px solid rgba(0,255,65,0.08); }
+        .info-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; text-align: center; }
+        .info-item { padding: 1.5rem 1rem; }
+        .info-icon { font-size: 1.8rem; margin-bottom: 0.7rem; }
+        .info-item h4 { font-size: 0.82rem; font-weight: 700; color: var(--green); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .info-item p { font-size: 0.82rem; color: #666; line-height: 1.6; }
+        @media(max-width:768px) {
+            .info-inner { grid-template-columns: 1fr; gap: 0.5rem; }
+            .testimonios-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        }
+
         /* botón flotante referidos */
         .btn-referidos-float {
             position: fixed;
@@ -883,7 +911,10 @@
 
     <header>
         <a href="#" class="header-logo">NERIVA</a>
+        <div style="display:flex;gap:0.7rem;align-items:center;">
+        <a href="https://wa.me/5491153386599" target="_blank" class="header-cta" style="background:rgba(37,211,102,0.1);border-color:#25d366;color:#25d366;"><span>💬 WhatsApp</span></a>
         <a href="#productos" class="header-cta"><span>🛍️ Ver productos</span></a>
+    </div>
     </header>
 
     <div class="hero">
@@ -913,6 +944,39 @@
         </div>
     </section>
 
+
+
+    <!-- INFO ENVÍO / PAGO -->
+    <div class="info-section">
+        <div class="info-inner">
+            <div class="info-item reveal">
+                <div class="info-icon">🚚</div>
+                <h4>Envíos</h4>
+                <p>Enviamos exclusivamente a <strong style="color:#eee">Capital Federal</strong>.<br>Coordinamos día y horario por WhatsApp.</p>
+            </div>
+            <div class="info-item reveal">
+                <div class="info-icon">💳</div>
+                <h4>Medios de pago</h4>
+                <p>Transferencia bancaria<br>Mercado Pago<br>Efectivo al recibir</p>
+            </div>
+            <div class="info-item reveal">
+                <div class="info-icon">💬</div>
+                <h4>Atención</h4>
+                <p>Respondemos por WhatsApp.<br>Consultas de lunes a sábado.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TESTIMONIOS -->
+    <section class="testimonios-section" id="testimonios">
+        <div class="testimonios-inner">
+            <h2 class="section-title reveal">Lo que dicen nuestros clientes</h2>
+            <div class="testimonios-grid" id="testimoniosGrid">
+                <div style="color:#444;font-size:0.85rem;padding:2rem;grid-column:1/-1;text-align:center;">Cargando testimonios...</div>
+            </div>
+        </div>
+    </section>
 
     <section class="referidos-section" id="referidos">
         <div class="referidos-inner">
@@ -1040,6 +1104,7 @@ async function cargarProductosDesdeSheets() {
         todosLosProductos = productos;
         generarFiltros(productos);
         renderizarProductos(productos);
+        cargarTestimonios(productos);
 
     } catch (err) {
         console.error('ERROR:', err);
@@ -1073,7 +1138,9 @@ function filtrarPor(categoria, btn) {
     document.getElementById('searchInput').value = '';
     const lista = categoria === 'todos'
         ? todosLosProductos
-        : todosLosProductos.filter(p => p.categoria === categoria);
+        : categoria === '__flash__'
+            ? todosLosProductos.filter(p => p.precioOferta !== null && !p.sinStock)
+            : todosLosProductos.filter(p => p.categoria === categoria);
     renderizarProductos(lista);
     document.getElementById('productos').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1332,6 +1399,25 @@ document.getElementById('refInput').addEventListener('input', function() {
 document.getElementById('refInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') crearCodigo();
 });
+
+
+/* ─── TESTIMONIOS ─── */
+function cargarTestimonios(productos) {
+    const grid = document.getElementById('testimoniosGrid');
+    const conCaptura = productos.filter(p => p.captura);
+    if (!conCaptura.length) {
+        grid.innerHTML = '<div style="color:#333;font-size:0.82rem;padding:2rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en la columna G del Sheets.</div>';
+        return;
+    }
+    grid.innerHTML = '';
+    conCaptura.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'testimonio-card reveal-card';
+        card.innerHTML = `<img src="${p.captura}" alt="Testimonio ${p.nombre}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\'no-cap\'>No se pudo cargar la imagen</div>'">`;
+        grid.appendChild(card);
+    });
+    observeCards();
+}
 
 function inicializarReferidos() {
     const guardado = localStorage.getItem(REF_KEY);
