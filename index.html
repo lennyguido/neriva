@@ -1201,18 +1201,6 @@
 
     .btn-referidos-float:active { opacity: 1; transform: scale(0.97); }
 
-    .btn-referidos-float .dot {
-        width: 5px; height: 5px;
-        background: var(--green);
-        border-radius: 50%;
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-        0%,100% { opacity: 0.4; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.3); }
-    }
-
     /* ── TILT: solo desktop ── */
     @media (hover: none) {
         .producto-card { transform: none !important; }
@@ -1389,7 +1377,7 @@
 </footer>
 
 <a href="#referidos" class="btn-referidos-float" onclick="document.getElementById('referidos').scrollIntoView({behavior:'smooth'});return false;">
-    <span class="dot"></span> Referidos
+    ✦ Referidos
 </a>
 ```
 
@@ -1766,6 +1754,8 @@ function inicializarReferidos() {
 }
 
 /* ─── ARRANQUE ─── */
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
 inicializarReferidos();
 observeAll();
 initTilt();
