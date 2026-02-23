@@ -1226,11 +1226,11 @@
         <div class="hero-subtitle">Tu tienda online</div>
         <p>Los mejores productos al mejor precio. Calidad garantizada, envíos rápidos y atención personalizada.</p>
         <div class="hero-badges">
-            <div class="badge">✓ Envío gratis</div>
-            <div class="badge">✓ Garantía</div>
-            <div class="badge">✓ Calidad</div>
+            <div class="badge">Envío gratis</div>
+            <div class="badge">Garantía</div>
+            <div class="badge">Calidad</div>
         </div>
-        <a href="#productos" class="hero-cta-btn">Ver productos →</a>
+        <a href="#productos" class="hero-cta-btn">Ver productos</a>
     </div>
 </div>
 
@@ -1259,7 +1259,7 @@
         <div class="info-item reveal">
             <div class="info-icon">💳</div>
             <h4>Medios de pago</h4>
-            <p>Transferencia · Mercado Pago · Efectivo</p>
+            <p>Transferencia<br>Mercado Pago<br>Efectivo</p>
         </div>
         <div class="info-item reveal">
             <div class="info-icon">💬</div>
@@ -1305,7 +1305,7 @@
                 <p>Elegi tu codigo. Solo letras y numeros, sin espacios.</p>
                 <div class="ref-input-row">
                     <input type="text" class="ref-input" id="refInput" placeholder="Ej: MARIA, JUAN23..." maxlength="16">
-                    <button class="btn-crear-codigo" onclick="crearCodigo()">Crear →</button>
+                    <button class="btn-crear-codigo" onclick="crearCodigo()">Crear</button>
                 </div>
                 <div class="ref-error-msg" id="refError"></div>
             </div>
@@ -1333,7 +1333,7 @@
 <div class="modal" id="productoModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
-        <button class="modal-close" onclick="closeModal()">×</button>
+        <button class="modal-close" onclick="closeModal()">X</button>
         <div class="modal-body">
             <div class="modal-imagen" id="modalImagenContainer"></div>
             <div class="modal-info">
@@ -1357,7 +1357,7 @@
 
 <!-- BANNER REFERIDO -->
 <div class="ref-banner" id="refBanner">
-    <button class="ref-banner-close" onclick="document.getElementById('refBanner').classList.remove('visible')">×</button>
+    <button class="ref-banner-close" onclick="document.getElementById('refBanner').classList.remove('visible')">X</button>
     <p>Llegaste con el codigo de:</p>
     <strong id="refBannerCodigo"></strong>
     <p style="margin-top:0.4rem;font-size:0.75rem;color:#555">Al comprar, se lo mencionamos al vendedor.</p>
@@ -1377,7 +1377,7 @@
 </footer>
 
 <a href="#referidos" class="btn-referidos-float" onclick="document.getElementById('referidos').scrollIntoView({behavior:'smooth'});return false;">
-    ✦ Referidos
+    Referidos
 </a>
 ```
 
@@ -1488,7 +1488,7 @@ function renderizarProductos(productos) {
                         <div class="producto-precio-original">$${p.precio.toLocaleString('es-AR')}</div>
                         <div class="producto-descuento">-${porcDesc}%</div>` : ''}
                 </div>
-                <span class="btn-ver-mas"><span>Ver detalles →</span></span>
+                <span class="btn-ver-mas"><span>Ver detalles</span></span>
             </div>`;
 
         card.addEventListener('click', () => abrirModal(p));
@@ -1657,14 +1657,14 @@ async function crearCodigo() {
         if (!json.ok) {
             input.classList.add('error');
             errorEl.textContent = json.msg || 'Ese codigo ya existe, proba otro.';
-            btn.textContent = 'Crear →';
+            btn.textContent = 'Crear';
             btn.disabled = false;
             return;
         }
     } catch(e) { /* guardar igual localmente */ }
 
     localStorage.setItem(REF_KEY, codigo);
-    btn.textContent = 'Crear →';
+    btn.textContent = 'Crear';
     btn.disabled = false;
     mostrarCodigoActivo(codigo);
 }
