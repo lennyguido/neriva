@@ -1598,11 +1598,12 @@ async function cargarProductosDesdeSheets() {
             const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
             const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
             
-            // 🎞️ GALERÍA: Colecta fotos de columnas H+ (índice 8+)
-            const fotos = [];
-            for (let j = 8; j < c.length; j++) {
+            // 🎞️ GALERÍA: Colecta fotos SOLO de columnas H+ (índice 7+)
+            // Columna G (índice 6) es captura testimonial, NO cuenta como foto de producto
+            const fotosAdicionales = [];
+            for (let j = 7; j < c.length; j++) {
                 const foto = c[j] ? sanitizeText(String(c[j]).trim()) : '';
-                if (foto) fotos.push(foto);
+                if (foto) fotosAdicionales.push(foto);
             }
             
             return {
@@ -1614,7 +1615,7 @@ async function cargarProductosDesdeSheets() {
                 imagen: sanitizeText(c[4] ? String(c[4]).trim() : ''),
                 precioOferta,
                 captura: sanitizeText(c[6] ? String(c[6]).trim() : ''),
-                fotos: fotos // Array de fotos adicionales
+                fotosAdicionales: fotosAdicionales // SOLO fotos H+, no incluye imagen principal
             };
         }).filter(p => p.nombre && p.precio > 0);
 
@@ -1681,17 +1682,20 @@ function renderizarProductos(productos) {
         const categoriaSegura = sanitizeText(p.categoria);
         const nombreSeguro = sanitizeText(p.nombre);
 
-        // 🎞️ Construir array de fotos para la tarjeta
-        let fotosCard = [];
-        if (p.imagen) fotosCard.push(p.imagen);
-        if (p.fotos && p.fotos.length > 0) fotosCard = fotosCard.concat(p.fotos);
-
-        const tieneMulipleFotos = fotosCard.length > 1;
+        // 🎞️ SOLO mostrar navegación si hay fotos adicionales (H+, NO G)
+        const tieneGaleria = p.fotosAdicionales && p.fotosAdicionales.length > 0;
         const cardId = `card-${p.id}`;
+        
+        // Si tiene galería: foto principal + fotos H+
+        // Si NO tiene galería: solo foto principal (comportamiento normal)
+        let fotosCard = [p.imagen];
+        if (tieneGaleria) {
+            fotosCard = fotosCard.concat(p.fotosAdicionales);
+        }
 
-        // Crear dots
+        // Crear dots - SOLO si hay galería
         let dotsHTML = '';
-        if (tieneMulipleFotos) {
+        if (tieneGaleria) {
             dotsHTML = `<div class="producto-foto-nav">`;
             fotosCard.forEach((_, idx) => {
                 dotsHTML += `<div class="foto-dot${idx === 0 ? ' active' : ''}" data-idx="${idx}" data-card="${cardId}"></div>`;
@@ -1699,9 +1703,9 @@ function renderizarProductos(productos) {
             dotsHTML += `</div>`;
         }
 
-        // Crear botones prev/next
+        // Crear botones prev/next - SOLO si hay galería
         let navHTML = '';
-        if (tieneMulipleFotos) {
+        if (tieneGaleria) {
             navHTML = `
                 <button class="producto-foto-prev" data-card="${cardId}" onclick="cambiarFotoTarjeta('${cardId}', -1); event.stopPropagation();">❮</button>
                 <button class="producto-foto-next" data-card="${cardId}" onclick="cambiarFotoTarjeta('${cardId}', 1); event.stopPropagation();">❯</button>
@@ -1805,11 +1809,11 @@ function abrirModal(p) {
         elBadge.style.display = 'none';
     }
 
-    // 🎞️ CARGAR GALERÍA
+    // 🎞️ CARGAR GALERÍA - Usar fotosAdicionales
     currentProductGaleria = [];
     if (p.imagen) currentProductGaleria.push(p.imagen);
-    if (p.fotos && p.fotos.length > 0) {
-        currentProductGaleria = currentProductGaleria.concat(p.fotos);
+    if (p.fotosAdicionales && p.fotosAdicionales.length > 0) {
+        currentProductGaleria = currentProductGaleria.concat(p.fotosAdicionales);
     }
 
     currentGaleriaIndex = 0;
