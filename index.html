@@ -1343,6 +1343,157 @@
         @media (hover: none) {
             .producto-card { transform: none !important; }
         }
+
+        /* ── LIGHTBOX ── */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .lightbox.active {
+            display: flex;
+            animation: lbIn 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        @keyframes lbIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .lightbox-frame {
+            position: relative;
+            border: 1.5px solid var(--green);
+            border-radius: 6px;
+            box-shadow:
+                0 0 0 1px rgba(0,255,65,0.15),
+                0 0 30px rgba(0,255,65,0.25),
+                0 0 80px rgba(0,255,65,0.08);
+            max-width: min(92vw, 1100px);
+            max-height: 88vh;
+            overflow: hidden;
+            animation: lbFrameIn 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        @keyframes lbFrameIn {
+            from { transform: scale(0.94); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+
+        .lightbox-frame img {
+            display: block;
+            max-width: min(92vw, 1100px);
+            max-height: 88vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Esquinas decorativas estilo cyberpunk */
+        .lightbox-frame::before,
+        .lightbox-frame::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .lightbox-frame::before {
+            top: -1px; left: -1px;
+            border-top: 2px solid var(--green);
+            border-left: 2px solid var(--green);
+            border-radius: 6px 0 0 0;
+        }
+        .lightbox-frame::after {
+            bottom: -1px; right: -1px;
+            border-bottom: 2px solid var(--green);
+            border-right: 2px solid var(--green);
+            border-radius: 0 0 6px 0;
+        }
+
+        .lightbox-corner-tr,
+        .lightbox-corner-bl {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .lightbox-corner-tr {
+            top: -1px; right: -1px;
+            border-top: 2px solid var(--green);
+            border-right: 2px solid var(--green);
+            border-radius: 0 6px 0 0;
+        }
+        .lightbox-corner-bl {
+            bottom: -1px; left: -1px;
+            border-bottom: 2px solid var(--green);
+            border-left: 2px solid var(--green);
+            border-radius: 0 0 0 6px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 0.7rem; right: 0.7rem;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(0,255,65,0.4);
+            color: var(--green);
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .lightbox-close:hover { background: var(--green); color: #000; }
+        .lightbox-close:active { transform: scale(0.93); }
+
+        /* Flechas del lightbox (si hay múltiples imágenes) */
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background: rgba(0,0,0,0.65);
+            border: 1px solid rgba(0,255,65,0.35);
+            color: var(--green);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .lightbox-nav:hover { background: rgba(0,255,65,0.15); box-shadow: 0 0 14px rgba(0,255,65,0.35); }
+        .lightbox-nav:active { transform: translateY(-50%) scale(0.92); }
+        .lightbox-prev { left: -52px; }
+        .lightbox-next { right: -52px; }
+
+        @media (max-width: 700px) {
+            .lightbox-prev { left: 6px; }
+            .lightbox-next { right: 6px; }
+        }
+
+        /* Cursor zoom-in sobre las imágenes del carrusel */
+        .modal-carousel-slide img,
+        .modal-imagen > img {
+            cursor: zoom-in;
+        }
     </style>
 </head>
 <body>
@@ -1504,6 +1655,18 @@
         <p class="footer-bottom">© 2026 NERIVA — Todos los derechos reservados</p>
     </div>
 </footer>
+
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox" id="lightbox" onclick="lightboxClickOutside(event)">
+    <div class="lightbox-frame" id="lightboxFrame">
+        <div class="lightbox-corner-tr"></div>
+        <div class="lightbox-corner-bl"></div>
+        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
+        <button class="lightbox-nav lightbox-prev" id="lbPrev" onclick="lbNav(-1)" aria-label="Anterior">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lbNext" onclick="lbNav(1)" aria-label="Siguiente">&#8250;</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+</div>
 
 <a href="#referidos" class="btn-referidos-float" onclick="document.getElementById('referidos').scrollIntoView({behavior:'smooth'});return false;">
     Referidos
@@ -2054,7 +2217,86 @@ function inicializarReferidos() {
     }
 }
 
-if (history.scrollRestoration) history.scrollRestoration = 'manual';
+// ── LIGHTBOX ──
+let lbImages = [];
+let lbIndex  = 0;
+
+function openLightbox(images, startIndex) {
+    lbImages = images;
+    lbIndex  = startIndex;
+
+    const img = document.getElementById('lightboxImg');
+    img.src = lbImages[lbIndex];
+    img.alt = '';
+
+    const prev = document.getElementById('lbPrev');
+    const next = document.getElementById('lbNext');
+    prev.style.display = lbImages.length > 1 ? 'flex' : 'none';
+    next.style.display = lbImages.length > 1 ? 'flex' : 'none';
+
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    // Restaurar scroll solo si el modal de producto está cerrado también
+    if (!document.getElementById('productoModal').classList.contains('active')) {
+        document.body.style.overflow = '';
+    }
+    lbImages = [];
+    lbIndex  = 0;
+}
+
+function lbNav(dir) {
+    lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+    const img = document.getElementById('lightboxImg');
+    img.style.opacity = '0';
+    img.style.transition = 'opacity 0.15s';
+    setTimeout(() => {
+        img.src = lbImages[lbIndex];
+        img.style.opacity = '1';
+    }, 150);
+}
+
+function lightboxClickOutside(e) {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+
+document.addEventListener('keydown', e => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('active')) return;
+    if (e.key === 'Escape')      closeLightbox();
+    if (e.key === 'ArrowLeft')   lbNav(-1);
+    if (e.key === 'ArrowRight')  lbNav(1);
+});
+
+// Swipe en el lightbox
+(function(){
+    const lb = document.getElementById('lightbox');
+    let sx = 0;
+    lb.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend',   e => {
+        const diff = sx - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40 && lbImages.length > 1) {
+            diff > 0 ? lbNav(1) : lbNav(-1);
+        }
+    }, { passive: true });
+})();
+
+// Hacer que las imágenes del modal abran el lightbox al hacer click
+function attachLightboxToModal() {
+    const container = document.getElementById('modalImagenContainer');
+    container.addEventListener('click', e => {
+        const img = e.target.closest('img');
+        if (!img) return;
+        // carouselImages ya tiene todas las fotos del producto actual
+        if (carouselImages.length === 0) return;
+        openLightbox([...carouselImages], carouselIndex);
+    });
+}
+
+attachLightboxToModal();
 window.scrollTo(0, 0);
 inicializarReferidos();
 observeAll();
