@@ -3,6 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 🔒 SEGURIDAD: CSP Headers -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://docs.google.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' data: https: blob:;
+        connect-src 'self' https://docs.google.com https://wa.me;
+        font-src 'self' https://fonts.gstatic.com;
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
     <title>NERIVA - Tu tienda online</title>
     <link rel="icon" type="image/png" href="https://i.postimg.cc/gjz4jfm1/Neriva-Logo.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/gjz4jfm1/Neriva-Logo.png">
@@ -380,7 +399,7 @@
             width: 100%; height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.3s ease;
         }
 
         @media (hover: hover) {
@@ -393,6 +412,75 @@
             font-size: 2.5rem;
             background: #0a0a0a;
             color: #333;
+        }
+
+        /* ── NAVEGACIÓN DE FOTOS EN TARJETA ── */
+        .producto-foto-nav {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 3;
+        }
+
+        .foto-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .foto-dot.active {
+            background: var(--green);
+            border-color: var(--green);
+            box-shadow: 0 0 6px rgba(0,255,65,0.6);
+        }
+
+        .producto-foto-prev,
+        .producto-foto-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 4;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            opacity: 0;
+        }
+
+        .producto-foto-prev { left: 6px; }
+        .producto-foto-next { right: 6px; }
+
+        @media (hover: hover) {
+            .producto-card:hover .producto-foto-prev,
+            .producto-card:hover .producto-foto-next {
+                opacity: 1;
+            }
+
+            .producto-foto-prev:hover,
+            .producto-foto-next:hover {
+                background: rgba(0,255,65,0.3);
+                border-color: var(--green);
+            }
+        }
+
+        .producto-foto-prev:active,
+        .producto-foto-next:active {
+            transform: translateY(-50%) scale(0.95);
         }
 
         .badge-oferta {
@@ -523,7 +611,7 @@
         .btn-ver-mas:active { background: var(--green); color: #000; transform: scale(0.97); }
         .btn-ver-mas span { position: relative; z-index: 1; }
 
-        /* ── MODAL ── */
+        /* ── MODAL CON GALERÍA ── */
         .modal {
             display: none;
             position: fixed;
@@ -618,7 +706,8 @@
             }
         }
 
-        .modal-imagen {
+        /* ── GALERÍA ── */
+        .modal-galeria {
             width: 100%;
             aspect-ratio: 4/3;
             background: #000;
@@ -626,13 +715,28 @@
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.08);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         @media (min-width: 769px) {
-            .modal-imagen { aspect-ratio: unset; height: 400px; }
+            .modal-galeria { aspect-ratio: unset; height: 400px; }
         }
 
-        .modal-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .modal-imagen-principal {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .modal-imagen-principal img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
         .modal-badge-oferta {
             position: absolute;
@@ -647,6 +751,46 @@
             text-transform: uppercase;
             z-index: 2;
         }
+
+        /* Thumbnails */
+        .modal-thumbnails {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.4);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .modal-thumbnails::-webkit-scrollbar { display: none; }
+
+        .modal-thumb {
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            background: #0a0a0a;
+            border: 2px solid rgba(0,255,65,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .modal-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .modal-thumb.active {
+            border-color: var(--green);
+            box-shadow: 0 0 12px rgba(0,255,65,0.4);
+        }
+
+        .modal-thumb:active { transform: scale(0.95); }
 
         .modal-info h2 {
             font-family: 'Orbitron', monospace;
@@ -976,6 +1120,7 @@
         @media (min-width: 500px) { .btn-crear-codigo { width: auto; } }
 
         .btn-crear-codigo:active { transform: scale(0.97); }
+        .btn-crear-codigo:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .ref-activo { display: none; }
 
@@ -1291,8 +1436,8 @@
             <div class="ref-crear" id="refCrear">
                 <p>Elegi tu codigo. Solo letras y numeros, sin espacios.</p>
                 <div class="ref-input-row">
-                    <input type="text" class="ref-input" id="refInput" placeholder="Ej: MARIA, JUAN23..." maxlength="16">
-                    <button class="btn-crear-codigo" onclick="crearCodigo()">Crear</button>
+                    <input type="text" class="ref-input" id="refInput" placeholder="Ej: MARIA, JUAN23..." maxlength="16" autocomplete="off">
+                    <button class="btn-crear-codigo" id="btnCrearCodigo" onclick="crearCodigo()">Crear</button>
                 </div>
                 <div class="ref-error-msg" id="refError"></div>
             </div>
@@ -1321,7 +1466,14 @@
         <div class="modal-drag-handle"></div>
         <button class="modal-close" onclick="closeModal()">X</button>
         <div class="modal-body">
-            <div class="modal-imagen" id="modalImagenContainer"></div>
+            <!-- GALERÍA CON THUMBNAILS -->
+            <div class="modal-galeria">
+                <div class="modal-imagen-principal" id="modalImagenPrincipal">
+                    <img id="modalImgMain" src="" alt="Producto">
+                </div>
+                <div class="modal-thumbnails" id="modalThumbnails"></div>
+            </div>
+
             <div class="modal-info">
                 <p class="modal-categoria" id="modalCategoria"></p>
                 <h2 id="modalNombre"></h2>
@@ -1366,16 +1518,77 @@
 </a>
 
 <script>
+// 🔒 SECURITY CONFIG
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/11cgwoDZwEC4KqjD-5dOHucJ2wsWvMK2QmDAYQDmXvyQ/gviz/tq?tqx=out:json';
 const WA_NUMBER = '5491153386599';
 const REF_KEY = 'neriva_ref_codigo';
+const MAX_CODIGO_LENGTH = 16;
+const RATE_LIMIT_ATTEMPTS = 3;
+const RATE_LIMIT_WINDOW = 60000;
 
 let todosLosProductos = [];
+let rateLimitMap = {};
+let currentProductGaleria = [];
+let currentGaleriaIndex = 0;
 
-/* ─── CARGAR PRODUCTOS ─── */
+// 🔒 SANITIZACIÓN
+function sanitizeText(text) {
+    if (typeof text !== 'string') return '';
+    return text.trim().replace(/[<>\"'`]/g, '').substring(0, 500);
+}
+
+function sanitizeCodigo(raw) {
+    if (typeof raw !== 'string') return '';
+    return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, MAX_CODIGO_LENGTH);
+}
+
+// 🔒 RATE LIMITING
+function checkRateLimit(key) {
+    const now = Date.now();
+    if (!rateLimitMap[key]) {
+        rateLimitMap[key] = { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
+    }
+    const entry = rateLimitMap[key];
+    if (now > entry.resetTime) {
+        entry.count = 0;
+        entry.resetTime = now + RATE_LIMIT_WINDOW;
+    }
+    if (entry.count >= RATE_LIMIT_ATTEMPTS) {
+        return false;
+    }
+    entry.count++;
+    return true;
+}
+
+// 🔒 ENCRIPTACIÓN BÁSICA
+function encryptData(key, value) {
+    try {
+        const encoded = btoa(JSON.stringify({ key, value, ts: Date.now() }));
+        localStorage.setItem(key + '_enc', encoded);
+    } catch (e) {
+        console.warn('Storage error:', e);
+    }
+}
+
+function decryptData(key) {
+    try {
+        const encoded = localStorage.getItem(key + '_enc');
+        if (!encoded) return null;
+        return JSON.parse(atob(encoded)).value;
+    } catch (e) {
+        localStorage.removeItem(key + '_enc');
+        return null;
+    }
+}
+
+// ── CARGAR PRODUCTOS ──
 async function cargarProductosDesdeSheets() {
     try {
-        const res = await fetch(SHEET_URL);
+        const res = await fetch(SHEET_URL, {
+            method: 'GET',
+            mode: 'cors',
+            headers: { 'Accept': 'application/json' }
+        });
         const text = await res.text();
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
@@ -1384,39 +1597,49 @@ async function cargarProductosDesdeSheets() {
             const precio = parseFloat(String(c[2]).replace(/[^\d.]/g, '')) || 0;
             const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
             const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
+            
+            // 🎞️ GALERÍA: Colecta fotos de columnas H+ (índice 8+)
+            const fotos = [];
+            for (let j = 8; j < c.length; j++) {
+                const foto = c[j] ? sanitizeText(String(c[j]).trim()) : '';
+                if (foto) fotos.push(foto);
+            }
+            
             return {
                 id: i + 1,
-                nombre: c[0] || '',
-                categoria: c[1] || '',
+                nombre: sanitizeText(c[0] || ''),
+                categoria: sanitizeText(c[1] || ''),
                 precio,
-                descripcion: c[3] || '',
-                imagen: c[4] ? String(c[4]).trim() : '',
+                descripcion: sanitizeText(c[3] || ''),
+                imagen: sanitizeText(c[4] ? String(c[4]).trim() : ''),
                 precioOferta,
-                captura: c[6] ? String(c[6]).trim() : ''
+                captura: sanitizeText(c[6] ? String(c[6]).trim() : ''),
+                fotos: fotos // Array de fotos adicionales
             };
-        }).filter(p => p.nombre);
+        }).filter(p => p.nombre && p.precio > 0);
 
         todosLosProductos = productos;
         generarFiltros(productos);
         renderizarProductos(productos);
         cargarTestimonios(productos);
     } catch (err) {
-        console.error('ERROR:', err);
+        console.error('Fetch error:', err);
         document.getElementById('productosGrid').innerHTML =
             `<div class="empty-state"><h3>Error al cargar</h3><p>Intentá de nuevo más tarde.</p></div>`;
     }
 }
 
-/* ─── FILTROS ─── */
+// ── FILTROS ──
 function generarFiltros(productos) {
     const categorias = [...new Set(productos.map(p => p.categoria).filter(Boolean))].sort();
     const container = document.getElementById('filterButtons');
+    container.innerHTML = '';
 
     const mkBtn = (label, cat) => {
         const btn = document.createElement('button');
         btn.className = 'filter-btn' + (cat === 'todos' ? ' active' : '');
         btn.dataset.category = cat;
-        btn.textContent = label;
+        btn.textContent = sanitizeText(label);
         btn.addEventListener('click', () => filtrarPor(cat, btn));
         container.appendChild(btn);
     };
@@ -1436,7 +1659,7 @@ function filtrarPor(categoria, btn) {
     document.getElementById('productos').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-/* ─── RENDERIZAR PRODUCTOS ─── */
+// ── RENDERIZAR PRODUCTOS ──
 function renderizarProductos(productos) {
     const grid = document.getElementById('productosGrid');
     grid.innerHTML = '';
@@ -1455,16 +1678,48 @@ function renderizarProductos(productos) {
         const porcDesc = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
         const precioMostrado = tieneOferta ? p.precioOferta : p.precio;
 
+        const categoriaSegura = sanitizeText(p.categoria);
+        const nombreSeguro = sanitizeText(p.nombre);
+
+        // 🎞️ Construir array de fotos para la tarjeta
+        let fotosCard = [];
+        if (p.imagen) fotosCard.push(p.imagen);
+        if (p.fotos && p.fotos.length > 0) fotosCard = fotosCard.concat(p.fotos);
+
+        const tieneMulipleFotos = fotosCard.length > 1;
+        const cardId = `card-${p.id}`;
+
+        // Crear dots
+        let dotsHTML = '';
+        if (tieneMulipleFotos) {
+            dotsHTML = `<div class="producto-foto-nav">`;
+            fotosCard.forEach((_, idx) => {
+                dotsHTML += `<div class="foto-dot${idx === 0 ? ' active' : ''}" data-idx="${idx}" data-card="${cardId}"></div>`;
+            });
+            dotsHTML += `</div>`;
+        }
+
+        // Crear botones prev/next
+        let navHTML = '';
+        if (tieneMulipleFotos) {
+            navHTML = `
+                <button class="producto-foto-prev" data-card="${cardId}" onclick="cambiarFotoTarjeta('${cardId}', -1); event.stopPropagation();">❮</button>
+                <button class="producto-foto-next" data-card="${cardId}" onclick="cambiarFotoTarjeta('${cardId}', 1); event.stopPropagation();">❯</button>
+            `;
+        }
+
         card.innerHTML = `
-            <div class="producto-imagen">
-                ${p.imagen
-                    ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy">`
+            <div class="producto-imagen" id="${cardId}-img">
+                ${fotosCard.length > 0
+                    ? `<img src="${fotosCard[0]}" alt="${nombreSeguro}" loading="lazy" class="producto-img-main" data-card="${cardId}" onerror="this.style.display='none'">`
                     : `<div class="no-image">📦</div>`}
                 ${tieneOferta ? `<div class="badge-oferta">🔥 -${porcDesc}%</div>` : ''}
+                ${dotsHTML}
+                ${navHTML}
             </div>
             <div class="producto-info">
-                <div class="producto-categoria">${p.categoria}</div>
-                <h3 class="producto-nombre">${p.nombre}</h3>
+                <div class="producto-categoria">${categoriaSegura}</div>
+                <h3 class="producto-nombre">${nombreSeguro}</h3>
                 <div class="precio-wrapper">
                     <div class="producto-precio">$${precioMostrado.toLocaleString('es-AR')}</div>
                     ${tieneOferta ? `
@@ -1474,23 +1729,69 @@ function renderizarProductos(productos) {
                 <span class="btn-ver-mas"><span>Ver detalles</span></span>
             </div>`;
 
+        // Guardar fotos en el elemento para acceso rápido
+        card.dataset.fotos = JSON.stringify(fotosCard);
+        card.dataset.fotoActual = 0;
+
         card.addEventListener('click', () => abrirModal(p));
+
+        // Agregar eventos a los dots
+        if (tieneMulipleFotos) {
+            const dots = card.querySelectorAll('.foto-dot');
+            dots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(dot.dataset.idx);
+                    cambiarFotoTarjeta(cardId, 0, idx);
+                });
+            });
+        }
+
         grid.appendChild(card);
     });
 
     observeCards();
 }
 
-/* ─── MODAL ─── */
+// 🎞️ CAMBIAR FOTO EN TARJETA
+function cambiarFotoTarjeta(cardId, direccion = 0, indiceDirecto = null) {
+    const card = document.querySelector(`[id="${cardId}-img"]`).closest('.producto-card');
+    const fotos = JSON.parse(card.dataset.fotos);
+    let indiceActual = parseInt(card.dataset.fotoActual);
+
+    if (indiceDirecto !== null) {
+        indiceActual = indiceDirecto;
+    } else {
+        indiceActual = (indiceActual + direccion + fotos.length) % fotos.length;
+    }
+
+    card.dataset.fotoActual = indiceActual;
+
+    // Cambiar imagen principal
+    const imgMain = document.querySelector(`[data-card="${cardId}"].producto-img-main`);
+    if (imgMain) {
+        imgMain.src = fotos[indiceActual];
+        imgMain.style.opacity = '0.7';
+        setTimeout(() => { imgMain.style.opacity = '1'; }, 100);
+    }
+
+    // Actualizar dots
+    const dots = card.querySelectorAll('.foto-dot');
+    dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === indiceActual);
+    });
+}
+
+// ── MODAL CON GALERÍA ──
 function abrirModal(p) {
     const tieneOferta = p.precioOferta !== null;
     const porcDesc = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
     const precioMostrado = tieneOferta ? p.precioOferta : p.precio;
 
-    document.getElementById('modalCategoria').textContent = p.categoria;
-    document.getElementById('modalNombre').textContent = p.nombre;
+    document.getElementById('modalCategoria').textContent = sanitizeText(p.categoria);
+    document.getElementById('modalNombre').textContent = sanitizeText(p.nombre);
     document.getElementById('modalPrecio').textContent = `$${precioMostrado.toLocaleString('es-AR')}`;
-    document.getElementById('modalDescripcion').textContent = p.descripcion;
+    document.getElementById('modalDescripcion').textContent = sanitizeText(p.descripcion);
 
     const elOrig = document.getElementById('modalPrecioOriginal');
     const elBadge = document.getElementById('modalDescuentoBadge');
@@ -1504,13 +1805,36 @@ function abrirModal(p) {
         elBadge.style.display = 'none';
     }
 
-    document.getElementById('modalImagenContainer').innerHTML = p.imagen
-        ? `${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
-           <img src="${p.imagen}" alt="${p.nombre}">`
-        : `<div class="no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">📦</div>`;
+    // 🎞️ CARGAR GALERÍA
+    currentProductGaleria = [];
+    if (p.imagen) currentProductGaleria.push(p.imagen);
+    if (p.fotos && p.fotos.length > 0) {
+        currentProductGaleria = currentProductGaleria.concat(p.fotos);
+    }
 
-    const msg = `Hola! Me interesa ${p.nombre} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta ? ` (oferta, antes $${p.precio.toLocaleString('es-AR')})` : ''}`;
+    currentGaleriaIndex = 0;
+    renderizarGaleria();
 
+    // Foto principal
+    const nombreSeguro = sanitizeText(p.nombre);
+    const mainImg = document.getElementById('modalImgMain');
+    if (currentProductGaleria.length > 0) {
+        mainImg.src = currentProductGaleria[0];
+        mainImg.alt = nombreSeguro;
+        mainImg.onerror = function() { this.style.display = 'none'; };
+    }
+
+    if (tieneOferta) {
+        const badge = document.querySelector('.modal-badge-oferta');
+        if (!badge) {
+            const newBadge = document.createElement('div');
+            newBadge.className = 'modal-badge-oferta';
+            newBadge.textContent = `🔥 -${porcDesc}% OFF`;
+            document.getElementById('modalImagenPrincipal').appendChild(newBadge);
+        }
+    }
+
+    const msg = `Hola! Me interesa ${nombreSeguro} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta ? ` (oferta, antes $${p.precio.toLocaleString('es-AR')})` : ''}`;
     const refPor = sessionStorage.getItem('neriva_ref_por');
     const msgFinal = refPor ? msg + ' -- Referido por: ' + refPor : msg;
 
@@ -1519,6 +1843,30 @@ function abrirModal(p) {
 
     document.getElementById('productoModal').classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+// 🎞️ RENDERIZAR GALERÍA CON THUMBNAILS
+function renderizarGaleria() {
+    const thumbContainer = document.getElementById('modalThumbnails');
+    thumbContainer.innerHTML = '';
+
+    currentProductGaleria.forEach((foto, idx) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'modal-thumb' + (idx === 0 ? ' active' : '');
+        thumb.innerHTML = `<img src="${foto}" alt="Foto ${idx + 1}" loading="lazy" onerror="this.style.display='none'">`;
+        thumb.addEventListener('click', () => cambiarFotoGaleria(idx));
+        thumbContainer.appendChild(thumb);
+    });
+}
+
+// Cambiar foto en galería
+function cambiarFotoGaleria(idx) {
+    currentGaleriaIndex = idx;
+    document.getElementById('modalImgMain').src = currentProductGaleria[idx];
+
+    document.querySelectorAll('.modal-thumb').forEach((t, i) => {
+        t.classList.toggle('active', i === idx);
+    });
 }
 
 function closeModal() {
@@ -1544,22 +1892,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     }, { passive: true });
 })();
 
-/* ─── BÚSQUEDA ─── */
+// ── BÚSQUEDA ──
 document.getElementById('searchInput').addEventListener('input', e => {
-    const t = e.target.value.toLowerCase();
+    const t = sanitizeText(e.target.value).toLowerCase();
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     const btnTodos = document.querySelector('[data-category="todos"]');
     if (btnTodos) btnTodos.classList.add('active');
     renderizarProductos(
         todosLosProductos.filter(p =>
             p.nombre.toLowerCase().includes(t) ||
-            (p.descripcion && p.descripcion.toLowerCase().includes(t)) ||
-            (p.categoria && p.categoria.toLowerCase().includes(t))
+            p.descripcion.toLowerCase().includes(t) ||
+            p.categoria.toLowerCase().includes(t)
         )
     );
 });
 
-/* ─── SCROLL REVEAL ─── */
+// ── SCROLL REVEAL ──
 const revealObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -1572,7 +1920,7 @@ const revealObserver = new IntersectionObserver(entries => {
 function observeAll() { document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el)); }
 function observeCards() { document.querySelectorAll('.reveal-card:not(.visible)').forEach(el => revealObserver.observe(el)); }
 
-/* ─── TILT 3D ─── */
+// ── TILT 3D ──
 function initTilt() {
     if (window.matchMedia('(hover: none)').matches) return;
 
@@ -1592,44 +1940,46 @@ function initTilt() {
     });
 }
 
-/* ─── REFERIDOS (MEJORADO) ─── */
-function sanitizarCodigo(raw) {
-    return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 16);
-}
-
-function getLinkReferido(codigo) {
-    const base = window.location.href.split('?')[0].split('#')[0];
-    return base + '?ref=' + codigo;
-}
-
+// ── REFERIDOS ──
 function crearCodigo() {
+    if (!checkRateLimit('crear_codigo')) {
+        const errorEl = document.getElementById('refError');
+        errorEl.textContent = 'Demasiados intentos. Esperá 1 minuto.';
+        return;
+    }
+
     const input = document.getElementById('refInput');
     const errorEl = document.getElementById('refError');
-    const btn = document.querySelector('.btn-crear-codigo');
-    const codigo = sanitizarCodigo(input.value);
+    const codigo = sanitizeCodigo(input.value);
 
     if (codigo.length < 3) {
         input.classList.add('error');
-        errorEl.textContent = 'Al menos 3 caracteres (solo letras y numeros).';
+        errorEl.textContent = 'Al menos 3 caracteres.';
         setTimeout(() => input.classList.remove('error'), 600);
         return;
     }
 
-    // Guardar localmente (la validación de unicidad es opcional)
     errorEl.textContent = '';
-    localStorage.setItem(REF_KEY, codigo);
+    encryptData(REF_KEY, codigo);
     mostrarCodigoActivo(codigo);
 }
 
 function mostrarCodigoActivo(codigo) {
-    document.getElementById('refCodigoLabel').textContent = 'TU CODIGO: ' + codigo;
-    document.getElementById('refLinkDisplay').textContent = getLinkReferido(codigo);
+    const codigoSeguro = sanitizeText(codigo);
+    document.getElementById('refCodigoLabel').textContent = 'TU CODIGO: ' + codigoSeguro;
+    document.getElementById('refLinkDisplay').textContent = getLinkReferido(codigoSeguro);
     document.getElementById('refCrear').style.display = 'none';
     document.getElementById('refActivo').style.display = 'block';
 }
 
+function getLinkReferido(codigo) {
+    const base = window.location.href.split('?')[0].split('#')[0];
+    const codigoSeguro = sanitizeCodigo(codigo);
+    return base + '?ref=' + codigoSeguro;
+}
+
 function cambiarCodigo() {
-    localStorage.removeItem(REF_KEY);
+    localStorage.removeItem(REF_KEY + '_enc');
     document.getElementById('refCrear').style.display = 'block';
     document.getElementById('refActivo').style.display = 'none';
     document.getElementById('refInput').value = '';
@@ -1643,26 +1993,30 @@ function copiarLink() {
         btn.textContent = '¡Copiado!';
         btn.classList.add('copiado');
         setTimeout(() => { btn.textContent = 'Copiar link'; btn.classList.remove('copiado'); }, 2000);
+    }).catch(() => {
+        alert('No se pudo copiar. Intenta de nuevo.');
     });
 }
 
 function shareWhatsapp() {
-    const codigo = localStorage.getItem(REF_KEY);
+    const codigo = decryptData(REF_KEY);
     if (!codigo) return;
-    const msg = 'Te recomiendo esta tienda! Entra con mi link: ' + getLinkReferido(codigo);
+    const codigoSeguro = sanitizeText(codigo);
+    const msg = 'Te recomiendo esta tienda! Entra con mi link: ' + getLinkReferido(codigoSeguro);
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function shareInstagram() {
-    const codigo = localStorage.getItem(REF_KEY);
+    const codigo = decryptData(REF_KEY);
     if (!codigo) return;
-    navigator.clipboard.writeText(getLinkReferido(codigo)).then(() => {
+    const codigoSeguro = sanitizeText(codigo);
+    navigator.clipboard.writeText(getLinkReferido(codigoSeguro)).then(() => {
         alert('Link copiado! Pegalo en tu bio o historia de Instagram.');
     });
 }
 
 document.getElementById('refInput').addEventListener('input', function() {
-    this.value = sanitizarCodigo(this.value);
+    this.value = sanitizeCodigo(this.value);
     document.getElementById('refError').textContent = '';
     this.classList.remove('error');
 });
@@ -1671,7 +2025,7 @@ document.getElementById('refInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') crearCodigo();
 });
 
-/* ─── TESTIMONIOS ─── */
+// ── TESTIMONIOS ──
 function cargarTestimonios(productos) {
     const grid = document.getElementById('testimoniosGrid');
     const conCaptura = productos.filter(p => p.captura);
@@ -1683,30 +2037,32 @@ function cargarTestimonios(productos) {
     conCaptura.forEach(p => {
         const card = document.createElement('div');
         card.className = 'testimonio-card reveal-card';
-        card.innerHTML = `<img src="${p.captura}" alt="Testimonio" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-cap\\'>Sin imagen</div>'">`;
+        const imgAlt = sanitizeText(p.nombre);
+        card.innerHTML = `<img src="${p.captura}" alt="${imgAlt}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-cap\\'>Sin imagen</div>'">`;
         grid.appendChild(card);
     });
     observeCards();
 }
 
-/* ─── INICIALIZACIÓN ─── */
+// ── INICIALIZACIÓN ──
 function inicializarReferidos() {
-    const guardado = localStorage.getItem(REF_KEY);
+    const guardado = decryptData(REF_KEY);
     if (guardado) mostrarCodigoActivo(guardado);
 
-    // Detectar parámetro ref en URL
     const params = new URLSearchParams(window.location.search);
     const refEntrante = params.get('ref');
     if (refEntrante) {
-        const limpio = sanitizarCodigo(refEntrante);
-        sessionStorage.setItem('neriva_ref_por', limpio);
-        document.getElementById('refBannerCodigo').textContent = limpio;
-        document.getElementById('refBanner').classList.add('visible');
-        setTimeout(() => document.getElementById('refBanner').classList.remove('visible'), 8000);
+        const limpio = sanitizeCodigo(refEntrante);
+        if (limpio) {
+            sessionStorage.setItem('neriva_ref_por', limpio);
+            document.getElementById('refBannerCodigo').textContent = sanitizeText(limpio);
+            document.getElementById('refBanner').classList.add('visible');
+            setTimeout(() => document.getElementById('refBanner').classList.remove('visible'), 8000);
+        }
     }
 }
 
-/* ─── INICIO ─── */
+// ── INICIO ──
 if (history.scrollRestoration) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 inicializarReferidos();
