@@ -1593,31 +1593,44 @@ async function cargarProductosDesdeSheets() {
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
         const productos = json.table.rows.map((r, i) => {
-            const c = r.c.map(col => col ? col.v : '');
-            const precio = parseFloat(String(c[2]).replace(/[^\d.]/g, '')) || 0;
-            const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
-            const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
-            
-            // 🎞️ GALERÍA: Colecta fotos SOLO de columnas H+ (índice 7+)
-            // Columna G (índice 6) es captura testimonial, NO cuenta como foto de producto
-            const fotosAdicionales = [];
-            for (let j = 7; j < c.length; j++) {
-                const foto = c[j] ? sanitizeText(String(c[j]).trim()) : '';
-                if (foto) fotosAdicionales.push(foto);
+            try {
+                const c = r.c ? r.c.map(col => col ? col.v : '') : [];
+                
+                if (!c[0]) return null; // Sin nombre, saltar
+                
+                const precio = parseFloat(String(c[2] || 0).replace(/[^\d.]/g, '')) || 0;
+                const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
+                const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
+                
+                // 🎞️ GALERÍA: Colecta fotos SOLO de columnas H+ (índice 7+)
+                const fotosAdicionales = [];
+                if (c.length > 7) {
+                    for (let j = 7; j < c.length; j++) {
+                        if (c[j]) {
+                            const foto = sanitizeText(String(c[j]).trim());
+                            if (foto && foto.length > 0) {
+                                fotosAdicionales.push(foto);
+                            }
+                        }
+                    }
+                }
+                
+                return {
+                    id: i + 1,
+                    nombre: sanitizeText(String(c[0] || '')),
+                    categoria: sanitizeText(String(c[1] || '')),
+                    precio: precio,
+                    descripcion: sanitizeText(String(c[3] || '')),
+                    imagen: sanitizeText(String(c[4] || '')),
+                    precioOferta: precioOferta,
+                    captura: sanitizeText(String(c[6] || '')),
+                    fotosAdicionales: fotosAdicionales
+                };
+            } catch (e) {
+                console.warn('Error procesando producto', i, e);
+                return null;
             }
-            
-            return {
-                id: i + 1,
-                nombre: sanitizeText(c[0] || ''),
-                categoria: sanitizeText(c[1] || ''),
-                precio,
-                descripcion: sanitizeText(c[3] || ''),
-                imagen: sanitizeText(c[4] ? String(c[4]).trim() : ''),
-                precioOferta,
-                captura: sanitizeText(c[6] ? String(c[6]).trim() : ''),
-                fotosAdicionales: fotosAdicionales // SOLO fotos H+, no incluye imagen principal
-            };
-        }).filter(p => p.nombre && p.precio > 0);
+        }).filter(p => p && p.nombre && p.precio > 0);
 
         todosLosProductos = productos;
         generarFiltros(productos);
@@ -1688,9 +1701,14 @@ function renderizarProductos(productos) {
         
         // Si tiene galería: foto principal + fotos H+
         // Si NO tiene galería: solo foto principal (comportamiento normal)
-        let fotosCard = [p.imagen];
-        if (tieneGaleria) {
-            fotosCard = fotosCard.concat(p.fotosAdicionales);
+        let fotosCard = p.imagen && p.imagen.trim() ? [p.imagen] : [];
+        if (tieneGaleria && p.fotosAdicionales && p.fotosAdicionales.length > 0) {
+            fotosCard = fotosCard.concat(p.fotosAdicionales.filter(f => f && f.trim()));
+        }
+        
+        // Si no hay ninguna foto válida, agregar placeholder
+        if (!fotosCard || fotosCard.length === 0) {
+            fotosCard = [''];
         }
 
         // Crear dots - SOLO si hay galería
@@ -1714,7 +1732,7 @@ function renderizarProductos(productos) {
 
         card.innerHTML = `
             <div class="producto-imagen" id="${cardId}-img">
-                ${fotosCard.length > 0
+                ${fotosCard && fotosCard[0] && fotosCard[0].trim()
                     ? `<img src="${fotosCard[0]}" alt="${nombreSeguro}" loading="lazy" class="producto-img-main" data-card="${cardId}" onerror="this.style.display='none'">`
                     : `<div class="no-image">📦</div>`}
                 ${tieneOferta ? `<div class="badge-oferta">🔥 -${porcDesc}%</div>` : ''}
