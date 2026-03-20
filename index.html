@@ -637,6 +637,7 @@
             }
         }
 
+        /* ── CARRUSEL DE IMÁGENES EN MODAL ── */
         .modal-imagen {
             width: 100%;
             aspect-ratio: 4/3;
@@ -651,8 +652,95 @@
             .modal-imagen { aspect-ratio: unset; height: 400px; }
         }
 
-        .modal-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* Track que contiene todas las fotos lado a lado */
+        .modal-carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
 
+        .modal-carousel-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .modal-carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Flechas de navegación */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(0, 255, 65, 0.35);
+            color: var(--green);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            line-height: 1;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 255, 65, 0.15);
+            border-color: var(--green);
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.35);
+        }
+
+        .carousel-btn:active {
+            background: rgba(0, 255, 65, 0.25);
+            transform: translateY(-50%) scale(0.93);
+        }
+
+        .carousel-btn-prev { left: 10px; }
+        .carousel-btn-next { right: 10px; }
+
+        /* Puntos indicadores */
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .carousel-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(0,255,65,0.3);
+            cursor: pointer;
+            transition: background 0.25s, border-color 0.25s, transform 0.25s;
+        }
+
+        .carousel-dot.active {
+            background: var(--green);
+            border-color: var(--green);
+            transform: scale(1.35);
+            box-shadow: 0 0 6px rgba(0,255,65,0.6);
+        }
+
+        /* Badge oferta sobre carrusel */
         .modal-badge-oferta {
             position: absolute;
             top: 10px; left: 10px;
@@ -664,7 +752,7 @@
             padding: 0.25rem 0.6rem;
             border-radius: 2px;
             text-transform: uppercase;
-            z-index: 2;
+            z-index: 6;
         }
 
         .modal-info h2 {
@@ -1392,60 +1480,42 @@ const WA_NUMBER = '5491153386599';
 const REF_KEY = 'neriva_ref_codigo';
 const MAX_CODIGO_LENGTH = 16;
 const RATE_LIMIT_ATTEMPTS = 3;
-const RATE_LIMIT_WINDOW = 60000; // 1 minuto
+const RATE_LIMIT_WINDOW = 60000;
 
 let todosLosProductos = [];
 let rateLimitMap = {};
 
-// 🔒 SANITIZACIÓN DE INPUTS
+// ── CARRUSEL: estado global del modal ──
+let carouselImages = [];
+let carouselIndex = 0;
+
 function sanitizeText(text) {
     if (typeof text !== 'string') return '';
-    return text
-        .trim()
-        .replace(/[<>\"'`]/g, '') // Prevenir XSS
-        .substring(0, 500); // Limitar longitud
+    return text.trim().replace(/[<>\"'`]/g, '').substring(0, 500);
 }
 
 function sanitizeCodigo(raw) {
     if (typeof raw !== 'string') return '';
-    return raw
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, '') // Solo alfanuméricos
-        .substring(0, MAX_CODIGO_LENGTH);
+    return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, MAX_CODIGO_LENGTH);
 }
 
-// 🔒 RATE LIMITING
 function checkRateLimit(key) {
     const now = Date.now();
     if (!rateLimitMap[key]) {
         rateLimitMap[key] = { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
     }
-    
     const entry = rateLimitMap[key];
-    if (now > entry.resetTime) {
-        entry.count = 0;
-        entry.resetTime = now + RATE_LIMIT_WINDOW;
-    }
-    
-    if (entry.count >= RATE_LIMIT_ATTEMPTS) {
-        return false; // Rate limited
-    }
-    
+    if (now > entry.resetTime) { entry.count = 0; entry.resetTime = now + RATE_LIMIT_WINDOW; }
+    if (entry.count >= RATE_LIMIT_ATTEMPTS) return false;
     entry.count++;
-    return true; // OK
+    return true;
 }
 
-// 🔒 ENCRIPTACIÓN BÁSICA localStorage
 function encryptData(key, value) {
-    // Encode simple - NO es encriptación real, solo obfuscación
-    // Para real: usa libsodium.js o TweetNaCl.js
     try {
         const encoded = btoa(JSON.stringify({ key, value, ts: Date.now() }));
         localStorage.setItem(key + '_enc', encoded);
-    } catch (e) {
-        console.warn('Storage error:', e);
-    }
+    } catch (e) { console.warn('Storage error:', e); }
 }
 
 function decryptData(key) {
@@ -1453,20 +1523,13 @@ function decryptData(key) {
         const encoded = localStorage.getItem(key + '_enc');
         if (!encoded) return null;
         return JSON.parse(atob(encoded)).value;
-    } catch (e) {
-        localStorage.removeItem(key + '_enc');
-        return null;
-    }
+    } catch (e) { localStorage.removeItem(key + '_enc'); return null; }
 }
 
 // ── CARGAR PRODUCTOS ──
 async function cargarProductosDesdeSheets() {
     try {
-        const res = await fetch(SHEET_URL, {
-            method: 'GET',
-            mode: 'cors',
-            headers: { 'Accept': 'application/json' }
-        });
+        const res = await fetch(SHEET_URL, { method: 'GET', mode: 'cors', headers: { 'Accept': 'application/json' } });
         const text = await res.text();
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
@@ -1475,7 +1538,7 @@ async function cargarProductosDesdeSheets() {
             const precio = parseFloat(String(c[2]).replace(/[^\d.]/g, '')) || 0;
             const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
             const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
-            
+
             return {
                 id: i + 1,
                 nombre: sanitizeText(c[0] || ''),
@@ -1484,7 +1547,10 @@ async function cargarProductosDesdeSheets() {
                 descripcion: sanitizeText(c[3] || ''),
                 imagen: sanitizeText(c[4] ? String(c[4]).trim() : ''),
                 precioOferta,
-                captura: sanitizeText(c[6] ? String(c[6]).trim() : '')
+                // columna G (índice 6) = segunda imagen del producto
+                imagen2: sanitizeText(c[6] ? String(c[6]).trim() : ''),
+                // columna H (índice 7) = captura de testimonio (si la usás)
+                captura: sanitizeText(c[7] ? String(c[7]).trim() : '')
             };
         }).filter(p => p.nombre && p.precio > 0);
 
@@ -1577,6 +1643,50 @@ function renderizarProductos(productos) {
     observeCards();
 }
 
+// ── CARRUSEL: funciones de navegación ──
+function carouselGoTo(index) {
+    const track = document.getElementById('carouselTrack');
+    const dots = document.querySelectorAll('.carousel-dot');
+    if (!track) return;
+
+    carouselIndex = index;
+    track.style.transform = `translateX(-${index * 100}%)`;
+
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+function carouselPrev() {
+    const newIndex = carouselIndex === 0 ? carouselImages.length - 1 : carouselIndex - 1;
+    carouselGoTo(newIndex);
+}
+
+function carouselNext() {
+    const newIndex = carouselIndex === carouselImages.length - 1 ? 0 : carouselIndex + 1;
+    carouselGoTo(newIndex);
+}
+
+// ── SWIPE táctil en el carrusel del modal ──
+function initCarouselSwipe(container) {
+    let startX = 0;
+    let isDragging = false;
+
+    container.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    }, { passive: true });
+
+    container.addEventListener('touchend', e => {
+        if (!isDragging) return;
+        isDragging = false;
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) {
+            diff > 0 ? carouselNext() : carouselPrev();
+        }
+    }, { passive: true });
+}
+
 // ── MODAL ──
 function abrirModal(p) {
     const tieneOferta = p.precioOferta !== null;
@@ -1601,13 +1711,46 @@ function abrirModal(p) {
     }
 
     const nombreSeguro = sanitizeText(p.nombre);
-    document.getElementById('modalImagenContainer').innerHTML = p.imagen
-        ? `${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
-           <img src="${p.imagen}" alt="${nombreSeguro}" onerror="this.style.display='none'">`
-        : `<div class="no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">📦</div>`;
+    const container = document.getElementById('modalImagenContainer');
+
+    // Armar lista de imágenes disponibles
+    carouselImages = [];
+    if (p.imagen) carouselImages.push(p.imagen);
+    if (p.imagen2) carouselImages.push(p.imagen2);
+    carouselIndex = 0;
+
+    const tieneCarrusel = carouselImages.length > 1;
+
+    if (carouselImages.length === 0) {
+        // Sin imágenes
+        container.innerHTML = `<div class="no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">📦</div>`;
+    } else if (!tieneCarrusel) {
+        // Solo una imagen — igual que antes, sin flechas
+        container.innerHTML = `
+            ${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
+            <img src="${carouselImages[0]}" alt="${nombreSeguro}" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+    } else {
+        // Dos imágenes: carrusel con flechas y puntos
+        const slides = carouselImages.map((src, i) => `
+            <div class="modal-carousel-slide">
+                <img src="${src}" alt="${nombreSeguro} - foto ${i + 1}" loading="${i === 0 ? 'eager' : 'lazy'}" onerror="this.style.display='none'">
+            </div>`).join('');
+
+        const dots = carouselImages.map((_, i) => `
+            <div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo(${i})"></div>`).join('');
+
+        container.innerHTML = `
+            ${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
+            <div class="modal-carousel-track" id="carouselTrack">${slides}</div>
+            <button class="carousel-btn carousel-btn-prev" onclick="carouselPrev()" aria-label="Foto anterior">&#8249;</button>
+            <button class="carousel-btn carousel-btn-next" onclick="carouselNext()" aria-label="Foto siguiente">&#8250;</button>
+            <div class="carousel-dots">${dots}</div>`;
+
+        // Inicializar swipe táctil
+        initCarouselSwipe(container);
+    }
 
     const msg = `Hola! Me interesa ${nombreSeguro} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta ? ` (oferta, antes $${p.precio.toLocaleString('es-AR')})` : ''}`;
-
     const refPor = sessionStorage.getItem('neriva_ref_por');
     const msgFinal = refPor ? msg + ' -- Referido por: ' + refPor : msg;
 
@@ -1621,13 +1764,19 @@ function abrirModal(p) {
 function closeModal() {
     document.getElementById('productoModal').classList.remove('active');
     document.body.style.overflow = '';
+    carouselImages = [];
+    carouselIndex = 0;
 }
 
 document.getElementById('productoModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeModal();
 });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft' && carouselImages.length > 1) carouselPrev();
+    if (e.key === 'ArrowRight' && carouselImages.length > 1) carouselNext();
+});
 
 (function() {
     const modal = document.getElementById('productoModal');
@@ -1691,7 +1840,6 @@ function initTilt() {
 
 // ── REFERIDOS (SEGURO) ──
 function crearCodigo() {
-    // 🔒 RATE LIMITING
     if (!checkRateLimit('crear_codigo')) {
         const errorEl = document.getElementById('refError');
         errorEl.textContent = 'Demasiados intentos. Esperá 1 minuto.';
@@ -1700,7 +1848,6 @@ function crearCodigo() {
 
     const input = document.getElementById('refInput');
     const errorEl = document.getElementById('refError');
-    const btn = document.getElementById('btnCrearCodigo');
     const codigo = sanitizeCodigo(input.value);
 
     if (codigo.length < 3) {
@@ -1744,9 +1891,7 @@ function copiarLink() {
         btn.textContent = '¡Copiado!';
         btn.classList.add('copiado');
         setTimeout(() => { btn.textContent = 'Copiar link'; btn.classList.remove('copiado'); }, 2000);
-    }).catch(() => {
-        alert('No se pudo copiar. Intenta de nuevo.');
-    });
+    }).catch(() => { alert('No se pudo copiar. Intenta de nuevo.'); });
 }
 
 function shareWhatsapp() {
@@ -1777,11 +1922,12 @@ document.getElementById('refInput').addEventListener('keydown', e => {
 });
 
 // ── TESTIMONIOS ──
+// NOTA: con la nueva columna G usada para imagen2, los testimonios ahora leen columna H (índice 7)
 function cargarTestimonios(productos) {
     const grid = document.getElementById('testimoniosGrid');
     const conCaptura = productos.filter(p => p.captura);
     if (!conCaptura.length) {
-        grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en la columna G del Sheets.</div>';
+        grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en la columna H del Sheets.</div>';
         return;
     }
     grid.innerHTML = '';
@@ -1813,7 +1959,6 @@ function inicializarReferidos() {
     }
 }
 
-// ── INICIO ──
 if (history.scrollRestoration) history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 inicializarReferidos();
