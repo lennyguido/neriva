@@ -35,32 +35,44 @@
         .section-title { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 700; letter-spacing: 1.5px; color: var(--green); margin-bottom: 1.2rem; }
         .productos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
         @media (min-width: 768px) { .productos-grid { gap: 1.2rem; } }
-        .producto-card { background: linear-gradient(145deg, #0e0e0e 0%, #080808 100%); border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.07); transition: all 0.2s; }
-        .producto-card:hover { box-shadow: 0 0 0 1px var(--green), 0 0 20px rgba(0,255,65,0.3); border-color: var(--green); }
+        .producto-card { background: linear-gradient(145deg, #0e0e0e 0%, #080808 100%); border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.07); transition: border-color 0.2s, box-shadow 0.2s; -webkit-user-select: none; user-select: none; }
+        .producto-card:active { transform: scale(0.98); border-color: rgba(0,255,65,0.5); }
+        @media (hover: hover) { .producto-card:hover { box-shadow: 0 0 0 1px var(--green), 0 0 20px rgba(0,255,65,0.3), 0 15px 40px rgba(0,255,65,0.1); border-color: var(--green); } }
         .producto-imagen { width: 100%; aspect-ratio: 1/1; background: #050505; overflow: hidden; position: relative; }
         @media (min-width: 768px) { .producto-imagen { aspect-ratio: 4/3; } }
-        .producto-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
-        .producto-card:hover .producto-imagen img { transform: scale(1.06); }
+        .producto-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease, opacity 0.3s ease; }
+        @media (hover: hover) { .producto-card:hover .producto-imagen img { transform: scale(1.06); } }
         .no-image { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; background: #0a0a0a; color: #333; }
-        .badge-oferta { position: absolute; top: 8px; left: 8px; background: var(--red); color: #fff; font-size: 0.6rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 2px; text-transform: uppercase; z-index: 2; }
-        /* NAVEGACIÓN DE FOTOS */
-        .producto-foto-nav { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 3; }
-        .foto-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; }
+        .badge-oferta { position: absolute; top: 8px; left: 8px; background: var(--red); color: #fff; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.8px; padding: 0.2rem 0.5rem; border-radius: 2px; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,59,59,0.4); animation: pulse-red 1.5s ease-in-out infinite; z-index: 2; }
+        @keyframes pulse-red { 0%,100% { box-shadow: 0 0 8px rgba(255,59,59,0.4); } 50% { box-shadow: 0 0 18px rgba(255,59,59,0.4); } }
+        /* NAVEGACIÓN DE FOTOS - SOLO VISIBLE SI HAY GALERÍA */
+        .producto-foto-nav { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none; gap: 4px; z-index: 3; }
+        .producto-foto-nav.visible { display: flex; }
+        .foto-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5); transition: all 0.2s; cursor: pointer; }
         .foto-dot.active { background: var(--green); border-color: var(--green); box-shadow: 0 0 6px rgba(0,255,65,0.6); }
-        .producto-foto-prev, .producto-foto-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 4; transition: all 0.2s; font-size: 0.8rem; opacity: 0; }
+        .producto-foto-prev, .producto-foto-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 4; transition: all 0.2s; font-size: 0.8rem; opacity: 0; }
+        .producto-foto-prev.visible, .producto-foto-next.visible { display: flex; }
         .producto-foto-prev { left: 6px; }
         .producto-foto-next { right: 6px; }
-        .producto-card:hover .producto-foto-prev, .producto-card:hover .producto-foto-next { opacity: 1; }
+        @media (hover: hover) { .producto-card:hover .producto-foto-prev.visible, .producto-card:hover .producto-foto-next.visible { opacity: 1; } }
         .producto-info { padding: 0.5rem; }
         @media (min-width: 768px) { .producto-info { padding: 1rem; } }
         .producto-categoria { color: var(--green); font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.2rem; font-weight: 700; }
+        @media (min-width: 768px) { .producto-categoria { font-size: 0.6rem; letter-spacing: 1.5px; margin-bottom: 0.35rem; } }
         .producto-nombre { font-size: 0.65rem; font-weight: 700; margin-bottom: 0.3rem; color: #eee; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         @media (min-width: 768px) { .producto-nombre { font-size: 0.95rem; margin-bottom: 0.6rem; } }
         .precio-wrapper { display: flex; align-items: baseline; gap: 0.2rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+        @media (min-width: 768px) { .precio-wrapper { gap: 0.4rem; margin-bottom: 0.7rem; } }
         .producto-precio { font-family: 'Orbitron', monospace; font-size: 0.8rem; font-weight: 900; color: var(--green); }
         @media (min-width: 768px) { .producto-precio { font-size: 1.2rem; } }
         .producto-precio-original { font-size: 0.55rem; color: #555; text-decoration: line-through; }
-        .btn-ver-mas { background: transparent; border: 1px solid rgba(0,255,65,0.35); color: var(--green); padding: 0.35rem 0.4rem; border-radius: 3px; display: block; font-weight: 700; font-size: 0.6rem; text-align: center; }
+        .producto-descuento { font-size: 0.52rem; color: var(--red); font-weight: 700; }
+        .btn-ver-mas { background: transparent; border: 1px solid rgba(0,255,65,0.35); color: var(--green); padding: 0.35rem 0.4rem; border-radius: 3px; display: block; font-weight: 700; font-size: 0.6rem; text-align: center; transition: all 0.2s; position: relative; overflow: hidden; }
+        @media (min-width: 768px) { .btn-ver-mas { padding: 0.5rem 0.8rem; font-size: 0.7rem; } }
+        .btn-ver-mas::before { content: ''; position: absolute; inset: 0; background: var(--green); transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease; }
+        @media (hover: hover) { .btn-ver-mas:hover::before { transform: scaleX(1); } .btn-ver-mas:hover { color: #000; } }
+        .btn-ver-mas:active { background: var(--green); color: #000; transform: scale(0.97); }
+        .btn-ver-mas span { position: relative; z-index: 1; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; }
         .modal.active { display: flex; align-items: flex-end; justify-content: center; }
         @media (min-width: 769px) { .modal.active { align-items: center; padding: 2rem; } }
@@ -233,6 +245,7 @@ function renderizarProductos(productos) {
     }
 
     productos.forEach(p => {
+        // 🎞️ IF: Solo mostrar navegación si hay fotos adicionales
         const tieneGaleria = p.fotosAdicionales && p.fotosAdicionales.length > 0;
         const fotosCard = p.imagen ? [p.imagen, ...p.fotosAdicionales] : p.fotosAdicionales;
 
@@ -241,15 +254,16 @@ function renderizarProductos(productos) {
         card.dataset.fotos = JSON.stringify(fotosCard);
         card.dataset.fotoActual = 0;
 
+        // 🎞️ SOLO generar HTML de navegación si tieneGaleria === true
         const dotsHTML = tieneGaleria ? `
-            <div class="producto-foto-nav">
+            <div class="producto-foto-nav visible">
                 ${fotosCard.map((_, i) => `<div class="foto-dot${i === 0 ? ' active' : ''}" onclick="cambiarFoto(event, ${i})"></div>`).join('')}
             </div>
         ` : '';
 
         const navHTML = tieneGaleria ? `
-            <button class="producto-foto-prev" onclick="cambiarFoto(event, -1)">❮</button>
-            <button class="producto-foto-next" onclick="cambiarFoto(event, 1)">❯</button>
+            <button class="producto-foto-prev visible" onclick="cambiarFoto(event, -1)">❮</button>
+            <button class="producto-foto-next visible" onclick="cambiarFoto(event, 1)">❯</button>
         ` : '';
 
         const precioMostrado = p.precioOferta || p.precio;
@@ -267,8 +281,10 @@ function renderizarProductos(productos) {
                 <h3 class="producto-nombre">${p.nombre}</h3>
                 <div class="precio-wrapper">
                     <div class="producto-precio">$${precioMostrado.toLocaleString('es-AR')}</div>
+                    ${p.precioOferta ? `<div class="producto-precio-original">$${p.precio.toLocaleString('es-AR')}</div>` : ''}
+                    ${desc > 0 ? `<div class="producto-descuento">-${desc}%</div>` : ''}
                 </div>
-                <span class="btn-ver-mas">Ver detalles</span>
+                <span class="btn-ver-mas"><span>Ver detalles</span></span>
             </div>
         `;
 
