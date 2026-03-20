@@ -435,6 +435,23 @@
             50% { box-shadow: 0 0 18px var(--red-glow); }
         }
 
+        /* Badge de múltiples fotos en la card */
+        .badge-fotos {
+            position: absolute;
+            bottom: 8px; right: 8px;
+            background: rgba(0,0,0,0.65);
+            border: 1px solid rgba(0,255,65,0.35);
+            color: var(--green);
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0.18rem 0.45rem;
+            border-radius: 2px;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
         .producto-info { padding: 0.5rem; }
 
         @media (min-width: 768px) {
@@ -753,6 +770,25 @@
             border-radius: 2px;
             text-transform: uppercase;
             z-index: 6;
+        }
+
+        /* Contador de imagen (ej: 2/5) */
+        .carousel-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.65);
+            border: 1px solid rgba(0,255,65,0.25);
+            color: rgba(0,255,65,0.9);
+            font-size: 0.6rem;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+            z-index: 6;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .modal-info h2 {
@@ -1482,6 +1518,24 @@ const MAX_CODIGO_LENGTH = 16;
 const RATE_LIMIT_ATTEMPTS = 3;
 const RATE_LIMIT_WINDOW = 60000;
 
+// ── Estructura de columnas del Sheets ──
+// A(0): nombre | B(1): categoría | C(2): precio | D(3): descripción
+// E(4): imagen principal | F(5): precio oferta
+// G(6) en adelante: imágenes extra del carrusel (tantas como quieras)
+// La ÚLTIMA columna con datos que NO sea una URL de imagen se ignora
+// → Para testimonios: agregá una columna específica al final con la captura
+// NOTA: el script lee TODAS las columnas desde G en adelante como imágenes del carrusel,
+// excepto la última si no parece una URL (https://...).
+// Si querés usar testimonios, ponelos en la última columna y el script los detecta.
+
+const COL_NOMBRE      = 0;
+const COL_CATEGORIA   = 1;
+const COL_PRECIO      = 2;
+const COL_DESCRIPCION = 3;
+const COL_IMAGEN      = 4;  // imagen principal (thumbnail en card)
+const COL_OFERTA      = 5;  // precio oferta
+const COL_EXTRAS_START = 6; // desde acá: imágenes extra del carrusel
+
 let todosLosProductos = [];
 let rateLimitMap = {};
 
@@ -1526,6 +1580,13 @@ function decryptData(key) {
     } catch (e) { localStorage.removeItem(key + '_enc'); return null; }
 }
 
+// Detecta si un string es una URL de imagen válida
+function esUrlImagen(str) {
+    if (typeof str !== 'string') return false;
+    const s = str.trim();
+    return s.startsWith('http://') || s.startsWith('https://');
+}
+
 // ── CARGAR PRODUCTOS ──
 async function cargarProductosDesdeSheets() {
     try {
@@ -1534,23 +1595,44 @@ async function cargarProductosDesdeSheets() {
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
         const productos = json.table.rows.map((r, i) => {
-            const c = r.c.map(col => col ? col.v : '');
-            const precio = parseFloat(String(c[2]).replace(/[^\d.]/g, '')) || 0;
-            const rawOferta = c[5] ? parseFloat(String(c[5]).replace(/[^\d.]/g, '')) : null;
+            // Extraer todas las celdas como strings
+            const c = r.c.map(col => col ? String(col.v || '').trim() : '');
+
+            const precio = parseFloat(c[COL_PRECIO].replace(/[^\d.]/g, '')) || 0;
+            const rawOferta = c[COL_OFERTA] ? parseFloat(c[COL_OFERTA].replace(/[^\d.]/g, '')) : null;
             const precioOferta = (rawOferta && rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
+
+            // Imagen principal (columna E)
+            const imagenPrincipal = sanitizeText(c[COL_IMAGEN]);
+
+            // ── Columnas G en adelante: separar imágenes extra vs testimonio ──
+            // Recorremos desde la columna G hasta el final.
+            // Todas las celdas que sean URLs van al carrusel extra.
+            // Las que NO son URL se tratan como captura de testimonio (tomamos la primera no-URL).
+            const imagenesExtra = [];
+            let captura = '';
+
+            for (let col = COL_EXTRAS_START; col < c.length; col++) {
+                const val = c[col];
+                if (!val) continue;
+                if (esUrlImagen(val)) {
+                    imagenesExtra.push(sanitizeText(val));
+                } else if (!captura) {
+                    // Primera celda no-URL tras G → testimonio
+                    captura = sanitizeText(val);
+                }
+            }
 
             return {
                 id: i + 1,
-                nombre: sanitizeText(c[0] || ''),
-                categoria: sanitizeText(c[1] || ''),
+                nombre: sanitizeText(c[COL_NOMBRE]),
+                categoria: sanitizeText(c[COL_CATEGORIA]),
                 precio,
-                descripcion: sanitizeText(c[3] || ''),
-                imagen: sanitizeText(c[4] ? String(c[4]).trim() : ''),
+                descripcion: sanitizeText(c[COL_DESCRIPCION]),
+                imagen: imagenPrincipal,
                 precioOferta,
-                // columna G (índice 6) = segunda imagen del producto
-                imagen2: sanitizeText(c[6] ? String(c[6]).trim() : ''),
-                // columna H (índice 7) = captura de testimonio (si la usás)
-                captura: sanitizeText(c[7] ? String(c[7]).trim() : '')
+                imagenesExtra,   // array con todas las fotos extra (G, H, I, ...)
+                captura          // captura testimonio (primera celda no-URL desde G)
             };
         }).filter(p => p.nombre && p.precio > 0);
 
@@ -1617,12 +1699,16 @@ function renderizarProductos(productos) {
         const categoriaSegura = sanitizeText(p.categoria);
         const nombreSeguro = sanitizeText(p.nombre);
 
+        // Total de fotos disponibles (principal + extras)
+        const totalFotos = (p.imagen ? 1 : 0) + p.imagenesExtra.length;
+
         card.innerHTML = `
             <div class="producto-imagen">
                 ${p.imagen
                     ? `<img src="${p.imagen}" alt="${nombreSeguro}" loading="lazy" onerror="this.style.display='none'">`
                     : `<div class="no-image">📦</div>`}
                 ${tieneOferta ? `<div class="badge-oferta">🔥 -${porcDesc}%</div>` : ''}
+                ${totalFotos > 1 ? `<div class="badge-fotos">📷 ${totalFotos}</div>` : ''}
             </div>
             <div class="producto-info">
                 <div class="producto-categoria">${categoriaSegura}</div>
@@ -1647,6 +1733,7 @@ function renderizarProductos(productos) {
 function carouselGoTo(index) {
     const track = document.getElementById('carouselTrack');
     const dots = document.querySelectorAll('.carousel-dot');
+    const counter = document.getElementById('carouselCounter');
     if (!track) return;
 
     carouselIndex = index;
@@ -1655,6 +1742,10 @@ function carouselGoTo(index) {
     dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === index);
     });
+
+    if (counter) {
+        counter.textContent = `${index + 1}/${carouselImages.length}`;
+    }
 }
 
 function carouselPrev() {
@@ -1713,10 +1804,10 @@ function abrirModal(p) {
     const nombreSeguro = sanitizeText(p.nombre);
     const container = document.getElementById('modalImagenContainer');
 
-    // Armar lista de imágenes disponibles
+    // ── Armar lista completa de imágenes: principal + todas las extras ──
     carouselImages = [];
     if (p.imagen) carouselImages.push(p.imagen);
-    if (p.imagen2) carouselImages.push(p.imagen2);
+    p.imagenesExtra.forEach(img => carouselImages.push(img));
     carouselIndex = 0;
 
     const tieneCarrusel = carouselImages.length > 1;
@@ -1724,13 +1815,15 @@ function abrirModal(p) {
     if (carouselImages.length === 0) {
         // Sin imágenes
         container.innerHTML = `<div class="no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">📦</div>`;
+
     } else if (!tieneCarrusel) {
-        // Solo una imagen — igual que antes, sin flechas
+        // Solo una imagen — sin flechas ni puntos
         container.innerHTML = `
             ${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
             <img src="${carouselImages[0]}" alt="${nombreSeguro}" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+
     } else {
-        // Dos imágenes: carrusel con flechas y puntos
+        // Múltiples imágenes: carrusel completo con flechas, puntos y contador
         const slides = carouselImages.map((src, i) => `
             <div class="modal-carousel-slide">
                 <img src="${src}" alt="${nombreSeguro} - foto ${i + 1}" loading="${i === 0 ? 'eager' : 'lazy'}" onerror="this.style.display='none'">
@@ -1741,12 +1834,13 @@ function abrirModal(p) {
 
         container.innerHTML = `
             ${tieneOferta ? `<div class="modal-badge-oferta">🔥 -${porcDesc}% OFF</div>` : ''}
+            <div class="carousel-counter" id="carouselCounter">1/${carouselImages.length}</div>
             <div class="modal-carousel-track" id="carouselTrack">${slides}</div>
             <button class="carousel-btn carousel-btn-prev" onclick="carouselPrev()" aria-label="Foto anterior">&#8249;</button>
             <button class="carousel-btn carousel-btn-next" onclick="carouselNext()" aria-label="Foto siguiente">&#8250;</button>
             <div class="carousel-dots">${dots}</div>`;
 
-        // Inicializar swipe táctil
+        // Swipe táctil
         initCarouselSwipe(container);
     }
 
@@ -1922,12 +2016,13 @@ document.getElementById('refInput').addEventListener('keydown', e => {
 });
 
 // ── TESTIMONIOS ──
-// NOTA: con la nueva columna G usada para imagen2, los testimonios ahora leen columna H (índice 7)
+// La columna de testimonio es cualquier celda desde G en adelante que NO sea una URL.
+// Si todas las celdas desde G son URLs, los testimonios no aparecen.
 function cargarTestimonios(productos) {
     const grid = document.getElementById('testimoniosGrid');
     const conCaptura = productos.filter(p => p.captura);
     if (!conCaptura.length) {
-        grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en la columna H del Sheets.</div>';
+        grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en el Sheets (primera celda no-URL desde columna G).</div>';
         return;
     }
     grid.innerHTML = '';
