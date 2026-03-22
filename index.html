@@ -200,6 +200,30 @@
             box-shadow: 0 0 20px rgba(0,255,65,0.3);
             transition: all 0.2s;
         }
+
+        .hero-cta-group {
+            display: inline-flex;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,255,65,0.25);
+        }
+
+        .hero-cta-group .hero-cta-btn {
+            border-radius: 0;
+            box-shadow: none;
+            border-right: 1px solid rgba(0,0,0,0.25);
+            margin: 0;
+        }
+
+        .hero-cta-group .hero-cta-btn:last-child {
+            border-right: none;
+        }
+
+        .hero-cta-btn.hero-cta-gold {
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            box-shadow: none;
+        }
+
         .hero-cta-btn:active { transform: scale(0.97); }
 
         /* ── SCROLL REVEAL ── */
@@ -1200,6 +1224,93 @@
         @media (max-width: 700px) { .lightbox-prev { left: 6px; } .lightbox-next { right: 6px; } }
 
         .modal-carousel-slide img, .modal-imagen > img { cursor: zoom-in; }
+
+        /* ── CATALOGO CON TABS ── */
+        .catalogo-section {
+            padding: 2rem 4% 3rem;
+        }
+
+        .catalogo-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.8rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            padding: 4px;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: transparent;
+            border: none;
+            color: #555;
+            padding: 0.6rem 1.4rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--green);
+            color: #000;
+            box-shadow: 0 0 16px rgba(0,255,65,0.35);
+        }
+
+        .tab-btn:not(.active):hover {
+            color: #aaa;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Cuando la tab activa es Combos, el botón activo es dorado */
+        .tab-btn.active.gold {
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            color: #000;
+            box-shadow: 0 0 16px rgba(255,215,0,0.35);
+        }
+
+        .tab-icon { font-size: 1rem; line-height: 1; }
+
+        .tab-badge {
+            background: var(--red);
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 900;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            margin-left: 2px;
+        }
+
+        .tab-panel { animation: tabFadeIn 0.3s ease; }
+
+        @keyframes tabFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 768px) {
+            .catalogo-section { padding: 2.5rem 5%; }
+        }
+
     </style>
 </head>
 <body>
@@ -1221,7 +1332,10 @@
             <div class="badge">Envíos a bajo costo</div>
             <div class="badge">Garantía</div>
         </div>
-        <a href="#combos" class="hero-cta-btn">Ver combos 🔥</a>
+        <div class="hero-cta-group">
+            <a href="#productos" class="hero-cta-btn" onclick="switchTab('productos');return true;">🛍️ Productos</a>
+            <a href="#productos" class="hero-cta-btn hero-cta-gold" onclick="switchTab('combos');return true;">🎁 Combos</a>
+        </div>
     </div>
 </div>
 
@@ -1232,27 +1346,34 @@
     </div>
 </div>
 
-<!-- ══ COMBOS ══ -->
-<section class="combos-section" id="combos">
-    <div class="combos-inner">
-        <div class="combos-header reveal">
-            <div class="combos-title">
-                <span class="combos-title-icon">🎁</span>
-                COMBOS
-                <span class="combos-title-icon">⚡</span>
-            </div>
-            <div class="combos-subtitle">Paquetes especiales · Mayor ahorro</div>
-        </div>
-        <div class="combos-grid" id="combosGrid">
-            <div class="combos-empty"><p>Cargando combos...</p></div>
-        </div>
-    </div>
-</section>
+<!-- ══ CATALOGO CON TABS ══ -->
+<section class="catalogo-section" id="productos">
+    <div class="catalogo-inner">
 
-<section class="productos-section" id="productos">
-    <h2 class="section-title reveal">Productos</h2>
-    <div class="productos-grid" id="productosGrid">
-        <div class="empty-state"><h3>Cargando...</h3></div>
+        <div class="tab-bar reveal">
+            <button class="tab-btn active" id="tabProductos" onclick="switchTab('productos')">
+                <span class="tab-icon">🛍️</span>
+                <span class="tab-label">Productos</span>
+            </button>
+            <button class="tab-btn" id="tabCombos" onclick="switchTab('combos')">
+                <span class="tab-icon">🎁</span>
+                <span class="tab-label">Combos</span>
+                <span class="tab-badge" id="tabCombosBadge" style="display:none">0</span>
+            </button>
+        </div>
+
+        <div class="tab-panel" id="panelProductos">
+            <div class="productos-grid" id="productosGrid">
+                <div class="empty-state"><h3>Cargando...</h3></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panelCombos" style="display:none">
+            <div class="combos-grid" id="combosGrid">
+                <div class="combos-empty"><p>Cargando combos...</p></div>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -1568,7 +1689,7 @@ async function cargarCombosDesdeSheets() {
     } catch (err) {
         console.error('Error combos:', err);
         // Si no existe la hoja todavía, ocultar la sección silenciosamente
-        document.getElementById('combos').style.display = 'none';
+        document.getElementById('tabCombos').style.display = 'none'; // hide tab if sheet missing
     }
 }
 
@@ -1580,8 +1701,7 @@ function renderizarCombos(combos) {
     grid.innerHTML = '';
 
     if (!combos.length) {
-        document.getElementById('combos').style.display = 'none';
-        return;
+        return; // panel stays hidden via tab logic
     }
 
     combos.forEach((cb, i) => {
@@ -1628,6 +1748,9 @@ function renderizarCombos(combos) {
         grid.appendChild(card);
     });
 
+    // Update badge with combo count
+    const badge = document.getElementById('tabCombosBadge');
+    if (badge) { badge.textContent = combos.length; badge.style.display = combos.length ? 'flex' : 'none'; }
     observeCards();
 }
 
@@ -2052,6 +2175,31 @@ function attachLightboxToModal() {
 }
 
 attachLightboxToModal();
+
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+function switchTab(tab) {
+    const panelProductos = document.getElementById('panelProductos');
+    const panelCombos    = document.getElementById('panelCombos');
+    const btnProductos   = document.getElementById('tabProductos');
+    const btnCombos      = document.getElementById('tabCombos');
+
+    if (tab === 'productos') {
+        panelProductos.style.display = 'block';
+        panelCombos.style.display    = 'none';
+        btnProductos.classList.add('active');
+        btnProductos.classList.remove('gold');
+        btnCombos.classList.remove('active', 'gold');
+    } else {
+        panelProductos.style.display = 'none';
+        panelCombos.style.display    = 'block';
+        btnCombos.classList.add('active', 'gold');
+        btnProductos.classList.remove('active');
+    }
+    observeCards();
+}
 
 // ══════════════════════════════════════════
 //  INIT
