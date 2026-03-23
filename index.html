@@ -1717,6 +1717,7 @@ function renderizarCombos(combos) {
         const card = document.createElement('div');
         card.className = 'combo-card reveal-card';
         card.style.transitionDelay = `${i * 80}ms`;
+        card.addEventListener('click', () => abrirComboModal({ stopPropagation: ()=>{} }, i));
         card.innerHTML = `
             <div class="combo-card-corner-br"></div>
             <div class="combo-imagen">
@@ -1740,7 +1741,7 @@ function renderizarCombos(combos) {
                         <div class="combo-precio-original">$${cb.precioOrig.toLocaleString('es-AR')}</div>
                         <div class="combo-ahorro-label">Ahorrás $${ahorroMonto}</div>` : ''}
                 </div>
-                <button class="btn-combo-wa" onclick="abrirComboModal(event, ${i})">
+                <button class="btn-combo-wa" onclick="event.stopPropagation(); abrirComboModal(event, ${i})">
                     💬 Quiero este combo
                 </button>
             </div>`;
@@ -1758,7 +1759,7 @@ function renderizarCombos(combos) {
 //  MODAL COMBO
 // ══════════════════════════════════════════
 function abrirComboModal(e, index) {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     const cb = todosLosCombos[index];
     if (!cb) return;
 
