@@ -302,7 +302,6 @@
             pointer-events: none;
         }
 
-        /* Línea decorativa animada superior */
         .combos-section::after {
             content: '';
             position: absolute;
@@ -342,7 +341,6 @@
 
         .combos-subtitle { color: #666; font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; }
 
-        /* Grid de combos: 1 col mobile, 2 desktop */
         .combos-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -373,7 +371,6 @@
             z-index: 0;
         }
 
-        /* Esquinas decorativas */
         .combo-card::after {
             content: '';
             position: absolute;
@@ -411,7 +408,6 @@
 
         .combo-card:active { transform: scale(0.98); }
 
-        /* Imagen del combo */
         .combo-imagen {
             width: 100%;
             aspect-ratio: 16/9;
@@ -439,7 +435,6 @@
             color: rgba(255,215,0,0.15);
         }
 
-        /* Badge COMBO */
         .combo-badge-main {
             position: absolute;
             top: 12px; left: 12px;
@@ -456,7 +451,6 @@
             box-shadow: 0 0 14px rgba(255,215,0,0.4);
         }
 
-        /* Badge ahorro */
         .combo-badge-ahorro {
             position: absolute;
             top: 12px; right: 12px;
@@ -474,7 +468,6 @@
 
         @keyframes pulse-red { 0%,100% { box-shadow: 0 0 8px var(--red-glow); } 50% { box-shadow: 0 0 18px var(--red-glow); } }
 
-        /* Info del combo */
         .combo-info {
             padding: 1rem 1.1rem 1.2rem;
             position: relative;
@@ -498,7 +491,6 @@
             margin-bottom: 0.8rem;
         }
 
-        /* Lista de productos incluidos */
         .combo-items {
             background: rgba(255,215,0,0.04);
             border: 1px solid rgba(255,215,0,0.12);
@@ -534,7 +526,6 @@
             box-shadow: 0 0 5px rgba(255,215,0,0.5);
         }
 
-        /* Precios del combo */
         .combo-precio-wrapper {
             display: flex;
             align-items: center;
@@ -568,7 +559,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Botón del combo */
         .btn-combo-wa {
             background: linear-gradient(135deg, #1a1a0d, #222208);
             color: var(--gold);
@@ -600,7 +590,6 @@
             }
         }
 
-        /* ── Sección vacía de combos ── */
         .combos-empty {
             text-align: center;
             padding: 3rem 2rem;
@@ -685,7 +674,6 @@
 
         @media (min-width: 769px) { .modal-combo-body { padding: 2.5rem; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; } }
 
-        /* Imagen grande en modal */
         .modal-combo-imagen {
             width: 100%;
             aspect-ratio: 16/9;
@@ -1015,7 +1003,49 @@
 
         .modal-descuento-badge { background: var(--red); color: #fff; font-size: 0.7rem; font-weight: 800; padding: 0.18rem 0.5rem; border-radius: 2px; letter-spacing: 0.8px; }
 
-        .modal-descripcion { color: #999; line-height: 1.8; margin-bottom: 1rem; font-size: 0.85rem; }
+        /* ── DESCRIPCIÓN EXPANDIBLE ── */
+        .modal-descripcion-wrapper { margin-bottom: 1rem; }
+
+        .modal-descripcion {
+            color: #999;
+            line-height: 1.8;
+            font-size: 0.85rem;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            max-height: 4.5em; /* ~3 líneas */
+        }
+
+        .modal-descripcion.expandida { max-height: 600px; }
+
+        .btn-ver-descripcion {
+            background: none;
+            border: none;
+            color: var(--green);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: opacity 0.2s;
+            margin-top: 0.3rem;
+        }
+
+        .btn-ver-descripcion:active { opacity: 0.7; }
+
+        @media (hover: hover) { .btn-ver-descripcion:hover { opacity: 0.7; } }
+
+        .btn-ver-descripcion .desc-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-style: normal;
+        }
+
+        .btn-ver-descripcion.abierto .desc-arrow { transform: rotate(180deg); }
+
+        /* ── FIN DESCRIPCIÓN EXPANDIBLE ── */
 
         .modal-features { background: rgba(0,255,65,0.04); border: 1px solid rgba(0,255,65,0.15); border-radius: 5px; padding: 0.9rem 1rem; margin-bottom: 1rem; }
 
@@ -1276,7 +1306,6 @@
             background: rgba(255,255,255,0.05);
         }
 
-        /* Cuando la tab activa es Combos, el botón activo es dorado */
         .tab-btn.active.gold {
             background: linear-gradient(135deg, var(--gold-dim), var(--gold));
             color: #000;
@@ -1461,7 +1490,13 @@
                     <div class="modal-precio-original" id="modalPrecioOriginal" style="display:none"></div>
                     <div class="modal-descuento-badge" id="modalDescuentoBadge" style="display:none"></div>
                 </div>
-                <p class="modal-descripcion" id="modalDescripcion"></p>
+                <div class="modal-descripcion-wrapper">
+                    <p class="modal-descripcion" id="modalDescripcion"></p>
+                    <button class="btn-ver-descripcion" id="btnVerDesc" onclick="toggleDescripcion()" style="display:none">
+                        <span class="desc-arrow">▼</span>
+                        <span class="desc-label">Ver descripción completa</span>
+                    </button>
+                </div>
                 <div class="modal-features">
                     <h4>💎 Producto Premium</h4>
                     <p>Consultá disponibilidad y medios de pago por WhatsApp.</p>
@@ -1543,31 +1578,23 @@ const MAX_CODIGO_LENGTH   = 16;
 const RATE_LIMIT_ATTEMPTS = 3;
 const RATE_LIMIT_WINDOW   = 60000;
 
-// ── Columnas hoja PRODUCTOS (sin cambios) ──
-const COL_NOMBRE       = 0; // A
-const COL_CATEGORIA    = 1; // B
-const COL_PRECIO       = 2; // C
-const COL_DESCRIPCION  = 3; // D
-const COL_IMAGEN       = 4; // E
-const COL_OFERTA       = 5; // F
-const COL_EXTRAS_START = 6; // G en adelante → fotos extra o testimonio
+// ── Columnas hoja PRODUCTOS ──
+const COL_NOMBRE       = 0; // A: nombre
+const COL_CATEGORIA    = 1; // B: categoría
+const COL_PRECIO       = 2; // C: precio
+const COL_DESCRIPCION  = 3; // D: descripción
+const COL_IMAGEN       = 4; // E: imagen principal
+const COL_OFERTA       = 5; // F: precio oferta
+const COL_TESTIMONIO   = 6; // G: captura/testimonio (URL imagen)
+const COL_FOTOS_START  = 7; // H en adelante: fotos extra del producto
 
 // ── Columnas hoja COMBOS ──
-// A(0): nombre del combo
-// B(1): descripción
-// C(2): precio del combo
-// D(3): precio normal (sin combo) — para mostrar el ahorro
-// E(4): imagen del combo
-// F(5): producto 1
-// G(6): producto 2
-// H(7): producto 3
-// ... (hasta J o más si querés)
 const COMBO_COL_NOMBRE       = 0;
 const COMBO_COL_DESC         = 1;
 const COMBO_COL_PRECIO       = 2;
 const COMBO_COL_PRECIO_ORIG  = 3;
 const COMBO_COL_IMAGEN       = 4;
-const COMBO_COL_ITEMS_START  = 5; // F en adelante: lista de productos incluidos
+const COMBO_COL_ITEMS_START  = 5;
 
 let todosLosProductos = [];
 let todosLosCombos    = [];
@@ -1630,19 +1657,32 @@ async function cargarProductosDesdeSheets() {
 
         const productos = json.table.rows.map((r, i) => {
             const c = r.c.map(col => col ? String(col.v || '').trim() : '');
-            const precio = parsePrice(c[COL_PRECIO]);
-            const rawOferta = parsePrice(c[COL_OFERTA]);
+            const precio      = parsePrice(c[COL_PRECIO]);
+            const rawOferta   = parsePrice(c[COL_OFERTA]);
             const precioOferta = (rawOferta > 0 && rawOferta < precio) ? rawOferta : null;
             const imagenPrincipal = sanitizeText(c[COL_IMAGEN]);
+
+            // Columna G (índice 6): testimonio/captura
+            const captura = esUrlImagen(c[COL_TESTIMONIO]) ? sanitizeText(c[COL_TESTIMONIO]) : '';
+
+            // Columna H en adelante (índice 7+): fotos extra del producto
             const imagenesExtra = [];
-            let captura = '';
-            for (let col = COL_EXTRAS_START; col < c.length; col++) {
+            for (let col = COL_FOTOS_START; col < c.length; col++) {
                 const val = c[col];
-                if (!val) continue;
-                if (esUrlImagen(val)) imagenesExtra.push(sanitizeText(val));
-                else if (!captura) captura = sanitizeText(val);
+                if (val && esUrlImagen(val)) imagenesExtra.push(sanitizeText(val));
             }
-            return { id: i + 1, nombre: sanitizeText(c[COL_NOMBRE]), categoria: sanitizeText(c[COL_CATEGORIA]), precio, descripcion: sanitizeText(c[COL_DESCRIPCION]), imagen: imagenPrincipal, precioOferta, imagenesExtra, captura };
+
+            return {
+                id: i + 1,
+                nombre:      sanitizeText(c[COL_NOMBRE]),
+                categoria:   sanitizeText(c[COL_CATEGORIA]),
+                precio,
+                descripcion: sanitizeText(c[COL_DESCRIPCION]),
+                imagen:      imagenPrincipal,
+                precioOferta,
+                imagenesExtra,
+                captura
+            };
         }).filter(p => p.nombre && p.precio > 0);
 
         todosLosProductos = productos;
@@ -1659,7 +1699,6 @@ async function cargarProductosDesdeSheets() {
 //  CARGAR COMBOS
 // ══════════════════════════════════════════
 async function cargarCombosDesdeSheets() {
-    const grid = document.getElementById('combosGrid');
     try {
         const res = await fetch(SHEET_URL_COMBOS, { method: 'GET', mode: 'cors' });
         const text = await res.text();
@@ -1667,7 +1706,7 @@ async function cargarCombosDesdeSheets() {
 
         const combos = json.table.rows.map((r, i) => {
             const c = r.c.map(col => col ? String(col.v || '').trim() : '');
-            const precio = parsePrice(c[COMBO_COL_PRECIO]);
+            const precio    = parsePrice(c[COMBO_COL_PRECIO]);
             const precioOrig = parsePrice(c[COMBO_COL_PRECIO_ORIG]);
             const items = [];
             for (let col = COMBO_COL_ITEMS_START; col < c.length; col++) {
@@ -1675,7 +1714,7 @@ async function cargarCombosDesdeSheets() {
             }
             return {
                 id: i + 1,
-                nombre:     sanitizeText(c[COMBO_COL_NOMBRE]),
+                nombre:      sanitizeText(c[COMBO_COL_NOMBRE]),
                 descripcion: sanitizeText(c[COMBO_COL_DESC]),
                 precio,
                 precioOrig:  (precioOrig > precio) ? precioOrig : null,
@@ -1688,8 +1727,7 @@ async function cargarCombosDesdeSheets() {
         renderizarCombos(combos);
     } catch (err) {
         console.error('Error combos:', err);
-        // Si no existe la hoja todavía, ocultar la sección silenciosamente
-        document.getElementById('tabCombos').style.display = 'none'; // hide tab if sheet missing
+        document.getElementById('tabCombos').style.display = 'none';
     }
 }
 
@@ -1700,12 +1738,10 @@ function renderizarCombos(combos) {
     const grid = document.getElementById('combosGrid');
     grid.innerHTML = '';
 
-    if (!combos.length) {
-        return; // panel stays hidden via tab logic
-    }
+    if (!combos.length) return;
 
     combos.forEach((cb, i) => {
-        const ahorroPct = cb.precioOrig ? Math.round((1 - cb.precio / cb.precioOrig) * 100) : 0;
+        const ahorroPct   = cb.precioOrig ? Math.round((1 - cb.precio / cb.precioOrig) * 100) : 0;
         const ahorroMonto = cb.precioOrig ? (cb.precioOrig - cb.precio).toLocaleString('es-AR') : 0;
 
         const itemsHTML = cb.items.slice(0, 5).map(item => `
@@ -1749,7 +1785,6 @@ function renderizarCombos(combos) {
         grid.appendChild(card);
     });
 
-    // Update badge with combo count
     const badge = document.getElementById('tabCombosBadge');
     if (badge) { badge.textContent = combos.length; badge.style.display = combos.length ? 'flex' : 'none'; }
     observeCards();
@@ -1766,7 +1801,6 @@ function abrirComboModal(e, index) {
     document.getElementById('comboModalNombre').textContent = cb.nombre;
     document.getElementById('comboModalDesc').textContent   = cb.descripcion;
 
-    // Imagen
     const imgContainer = document.getElementById('comboModalImagen');
     if (cb.imagen) {
         imgContainer.innerHTML = `<img src="${cb.imagen}" alt="${cb.nombre}" onerror="this.style.display='none'">`;
@@ -1774,7 +1808,6 @@ function abrirComboModal(e, index) {
         imgContainer.innerHTML = `<div class="combo-no-image" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;">🎁</div>`;
     }
 
-    // Items
     const itemsEl = document.getElementById('comboModalItems');
     if (cb.items.length) {
         itemsEl.innerHTML = `<div class="modal-combo-items-title">✦ Incluye</div>` +
@@ -1784,7 +1817,6 @@ function abrirComboModal(e, index) {
         itemsEl.style.display = 'none';
     }
 
-    // Precios
     document.getElementById('comboModalPrecio').textContent = `$${cb.precio.toLocaleString('es-AR')}`;
     const origEl   = document.getElementById('comboModalPrecioOrig');
     const ahorroEl = document.getElementById('comboModalAhorro');
@@ -1799,7 +1831,6 @@ function abrirComboModal(e, index) {
         ahorroEl.style.display = 'none';
     }
 
-    // WhatsApp
     const msg = `Hola! Me interesa el COMBO: *${cb.nombre}* ($${cb.precio.toLocaleString('es-AR')})${cb.items.length ? '\nIncluye: ' + cb.items.join(', ') : ''}`;
     const refPor = sessionStorage.getItem('neriva_ref_por');
     const msgFinal = refPor ? msg + '\n-- Referido por: ' + refPor : msg;
@@ -1818,7 +1849,6 @@ document.getElementById('comboModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeComboModal();
 });
 
-// Swipe down para cerrar modal combo
 (function() {
     const modal   = document.getElementById('comboModal');
     const content = modal.querySelector('.modal-combo-content');
@@ -1892,12 +1922,24 @@ function renderizarProductos(productos) {
 }
 
 // ══════════════════════════════════════════
+//  DESCRIPCIÓN EXPANDIBLE
+// ══════════════════════════════════════════
+function toggleDescripcion() {
+    const desc    = document.getElementById('modalDescripcion');
+    const btn     = document.getElementById('btnVerDesc');
+    const label   = btn.querySelector('.desc-label');
+    const abierto = desc.classList.toggle('expandida');
+    btn.classList.toggle('abierto', abierto);
+    label.textContent = abierto ? 'Ocultar descripción' : 'Ver descripción completa';
+}
+
+// ══════════════════════════════════════════
 //  CARRUSEL DEL MODAL DE PRODUCTO
 // ══════════════════════════════════════════
 function carouselGoTo(index) {
-    const track = document.getElementById('carouselTrack');
-    const dots   = document.querySelectorAll('.carousel-dot');
-    const counter= document.getElementById('carouselCounter');
+    const track   = document.getElementById('carouselTrack');
+    const dots    = document.querySelectorAll('.carousel-dot');
+    const counter = document.getElementById('carouselCounter');
     if (!track) return;
     carouselIndex = index;
     track.style.transform = `translateX(-${index * 100}%)`;
@@ -1923,22 +1965,45 @@ function initCarouselSwipe(container) {
 //  MODAL PRODUCTO
 // ══════════════════════════════════════════
 function abrirModal(p) {
-    const tieneOferta = p.precioOferta !== null;
-    const porcDesc = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
+    const tieneOferta    = p.precioOferta !== null;
+    const porcDesc       = tieneOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
     const precioMostrado = tieneOferta ? p.precioOferta : p.precio;
 
-    document.getElementById('modalCategoria').textContent  = sanitizeText(p.categoria);
-    document.getElementById('modalNombre').textContent     = sanitizeText(p.nombre);
-    document.getElementById('modalPrecio').textContent     = `$${precioMostrado.toLocaleString('es-AR')}`;
-    document.getElementById('modalDescripcion').textContent= sanitizeText(p.descripcion);
+    document.getElementById('modalCategoria').textContent = sanitizeText(p.categoria);
+    document.getElementById('modalNombre').textContent    = sanitizeText(p.nombre);
+    document.getElementById('modalPrecio').textContent    = `$${precioMostrado.toLocaleString('es-AR')}`;
+
+    // Descripción — resetear estado y mostrar botón si es larga
+    const descEl  = document.getElementById('modalDescripcion');
+    const btnDesc = document.getElementById('btnVerDesc');
+    descEl.textContent = sanitizeText(p.descripcion);
+    descEl.classList.remove('expandida');
+    btnDesc.classList.remove('abierto');
+    btnDesc.querySelector('.desc-label').textContent = 'Ver descripción completa';
+
+    // Mostrar botón "ver descripción" solo si el texto es suficientemente largo
+    // Lo evaluamos después de un tick para que el DOM calcule el scroll
+    btnDesc.style.display = 'none';
+    setTimeout(() => {
+        if (descEl.scrollHeight > descEl.clientHeight + 4) {
+            btnDesc.style.display = 'flex';
+        }
+    }, 50);
 
     const elOrig  = document.getElementById('modalPrecioOriginal');
     const elBadge = document.getElementById('modalDescuentoBadge');
-    if (tieneOferta) { elOrig.textContent = `$${p.precio.toLocaleString('es-AR')}`; elOrig.style.display = 'block'; elBadge.textContent = `-${porcDesc}% OFF`; elBadge.style.display = 'block'; }
-    else { elOrig.style.display = 'none'; elBadge.style.display = 'none'; }
+    if (tieneOferta) {
+        elOrig.textContent  = `$${p.precio.toLocaleString('es-AR')}`;
+        elOrig.style.display = 'block';
+        elBadge.textContent  = `-${porcDesc}% OFF`;
+        elBadge.style.display = 'block';
+    } else {
+        elOrig.style.display  = 'none';
+        elBadge.style.display = 'none';
+    }
 
     const nombreSeguro = sanitizeText(p.nombre);
-    const container = document.getElementById('modalImagenContainer');
+    const container    = document.getElementById('modalImagenContainer');
     carouselImages = [];
     if (p.imagen) carouselImages.push(p.imagen);
     p.imagenesExtra.forEach(img => carouselImages.push(img));
@@ -1963,7 +2028,7 @@ function abrirModal(p) {
         initCarouselSwipe(container);
     }
 
-    const msg = `Hola! Me interesa ${nombreSeguro} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta?` (oferta, antes $${p.precio.toLocaleString('es-AR')})`:''}`; 
+    const msg    = `Hola! Me interesa ${nombreSeguro} - $${precioMostrado.toLocaleString('es-AR')}${tieneOferta?` (oferta, antes $${p.precio.toLocaleString('es-AR')})`:''}`; 
     const refPor = sessionStorage.getItem('neriva_ref_por');
     document.getElementById('modalWhatsapp').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(refPor ? msg + ' -- Referido por: ' + refPor : msg)}`;
 
@@ -1971,7 +2036,12 @@ function abrirModal(p) {
     document.body.style.overflow = 'hidden';
 }
 
-function closeModal() { document.getElementById('productoModal').classList.remove('active'); document.body.style.overflow = ''; carouselImages = []; carouselIndex = 0; }
+function closeModal() {
+    document.getElementById('productoModal').classList.remove('active');
+    document.body.style.overflow = '';
+    carouselImages = [];
+    carouselIndex  = 0;
+}
 
 document.getElementById('productoModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
@@ -1982,7 +2052,7 @@ document.addEventListener('keydown', e => {
 });
 
 (function() {
-    const modal = document.getElementById('productoModal');
+    const modal   = document.getElementById('productoModal');
     const content = modal.querySelector('.modal-content');
     let startY = 0;
     content.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
@@ -2033,9 +2103,9 @@ function initTilt() {
 // ══════════════════════════════════════════
 function crearCodigo() {
     if (!checkRateLimit('crear_codigo')) { document.getElementById('refError').textContent = 'Demasiados intentos. Esperá 1 minuto.'; return; }
-    const input = document.getElementById('refInput');
+    const input   = document.getElementById('refInput');
     const errorEl = document.getElementById('refError');
-    const codigo = sanitizeCodigo(input.value);
+    const codigo  = sanitizeCodigo(input.value);
     if (codigo.length < 3) { input.classList.add('error'); errorEl.textContent = 'Al menos 3 caracteres.'; setTimeout(() => input.classList.remove('error'), 600); return; }
     errorEl.textContent = '';
     encryptData(REF_KEY, codigo);
@@ -2046,7 +2116,7 @@ function mostrarCodigoActivo(codigo) {
     const s = sanitizeText(codigo);
     document.getElementById('refCodigoLabel').textContent = 'TU CODIGO: ' + s;
     document.getElementById('refLinkDisplay').textContent = getLinkReferido(s);
-    document.getElementById('refCrear').style.display = 'none';
+    document.getElementById('refCrear').style.display  = 'none';
     document.getElementById('refActivo').style.display = 'block';
 }
 
@@ -2057,10 +2127,10 @@ function getLinkReferido(codigo) {
 
 function cambiarCodigo() {
     localStorage.removeItem(REF_KEY + '_enc');
-    document.getElementById('refCrear').style.display = 'block';
+    document.getElementById('refCrear').style.display  = 'block';
     document.getElementById('refActivo').style.display = 'none';
-    document.getElementById('refInput').value = '';
-    document.getElementById('refError').textContent = '';
+    document.getElementById('refInput').value          = '';
+    document.getElementById('refError').textContent    = '';
 }
 
 function copiarLink() {
@@ -2091,7 +2161,10 @@ document.getElementById('refInput').addEventListener('keydown', e => { if (e.key
 function cargarTestimonios(productos) {
     const grid = document.getElementById('testimoniosGrid');
     const conCaptura = productos.filter(p => p.captura);
-    if (!conCaptura.length) { grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en el Sheets.</div>'; return; }
+    if (!conCaptura.length) {
+        grid.innerHTML = '<div style="color:#333;font-size:0.75rem;padding:1.5rem;grid-column:1/-1;text-align:center;">Los testimonios aparecerán acá cuando los cargues en el Sheets.</div>';
+        return;
+    }
     grid.innerHTML = '';
     conCaptura.forEach(p => {
         const card = document.createElement('div');
@@ -2176,7 +2249,6 @@ function attachLightboxToModal() {
 }
 
 attachLightboxToModal();
-
 
 // ══════════════════════════════════════════
 //  TABS
