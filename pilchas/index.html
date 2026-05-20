@@ -172,7 +172,7 @@
         }
         /* Mobile: imagen estática */
         .hero-img-mobile {
-            display: none;
+            display: none !important;
             position: absolute;
             inset: 0;
         }
@@ -809,7 +809,6 @@
             .nav-links { display: none; }
             .nav-mobile-menu { display: flex !important; }
             /* En mobile ocultamos el video y mostramos imagen */
-            .yt-bg { display: none; }
             .hero-img-mobile { display: block; }
             .hero-mute { display: none; }
             .hero-content { padding: 0 20px 48px; }
@@ -1107,7 +1106,6 @@
         const YT_VIDEO_ID = 'SkDc2yVNjcU';
         let ytPlayer, isMuted = true;
         function onYouTubeIframeAPIReady() {
-            if (window.innerWidth <= 900) return; // no cargar en mobile
             ytPlayer = new YT.Player('ytPlayer', {
                 videoId: YT_VIDEO_ID,
                 playerVars: { autoplay:1, mute:1, loop:1, playlist:YT_VIDEO_ID, controls:0, showinfo:0, rel:0, modestbranding:1, playsinline:1, fs:0, cc_load_policy:0, iv_load_policy:3, autohide:1, disablekb:1 },
