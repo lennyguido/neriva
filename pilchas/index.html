@@ -501,19 +501,20 @@
         }
 
         /* Mobile modal: image pequeña arriba, info abajo */
-        .modal-gallery {
-            width: 100%;
-            background: #050505;
-            border-radius: 2px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-            position: relative;
-            /* Mobile: altura fija chica para que entre el resto */
-            height: 220px;
-        }
-        @media(min-width:769px) {
-            .modal-gallery { height: 520px; }
-        }
+      /* Reemplazá el bloque .modal-gallery en pilchas.html */
+.modal-gallery {
+    width: 100%;
+    background: #050505;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    aspect-ratio: 3/4;
+    max-height: 45vh;  /* ← esto es todo, limita el alto en mobile */
+}
+@media(min-width:769px) {
+    .modal-gallery { aspect-ratio: unset; max-height: unset; height: 520px; }
+}
 
         .carousel-track { display: flex; width: 100%; height: 100%; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); }
         .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; }
