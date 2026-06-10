@@ -311,7 +311,24 @@
         }
         .brand-chip:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* ── STRIP ── */
+        /* ── TIPO CHIPS ── */
+.tipo-chips-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.tipo-chip {
+    display: flex; align-items: center; justify-content: center;
+    height: 34px; padding: 0 16px;
+    background: rgba(10,10,10,0.6); border: 1px solid rgba(58,58,58,0.6);
+    border-radius: 17px; cursor: crosshair;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-light);
+    transition: all 0.2s; backdrop-filter: blur(6px); white-space: nowrap; flex-shrink: 0;
+}
+.tipo-chip:hover { border-color: rgba(209,0,0,0.5); color: var(--white); }
+.tipo-chip.active {
+    border-color: var(--red); background: rgba(209,0,0,0.18);
+    color: var(--white); box-shadow: 0 0 0 1px var(--red);
+}
+
+/* ── STRIP ── */
         .strip {
             border-top: 1px solid var(--gray); border-bottom: 1px solid var(--gray);
             height: 52px; display: flex; align-items: center;
@@ -871,6 +888,9 @@
             <div id="heroChipsWrap" style="margin-top:20px;">
                 <div class="brand-chips-row" id="brandChipsRow"></div>
             </div>
+            <div id="tipoChipsWrap" style="animation: fadeUp 0.8s 0.55s both; display:none;">
+                <div class="tipo-chips-row" id="tipoChipsRow"></div>
+            </div>
             <div class="hero-ctas">
                 <a href="#catalogo" class="btn-primary">Ver Colección</a>
                 <a href="https://wa.me/5491128330853" target="_blank" class="btn-ghost">💬 WhatsApp</a>
@@ -1081,7 +1101,7 @@
         const COL = { nombre:0, cat:1, precio:2, desc:3, img:4, oferta:5, captura:6, marca:7, tipo:8, condicion:9, fotosStart:10 };
 
         let allProducts = [], filtered = [];
-        let catFilter = 'todos', sortMode = '';
+        let catFilter = 'todos', tipoFilter = 'todos', sortMode = '';
         let carouselIdx = 0, carouselImgs = [], productoActivo = null;
         let BRAND_LOGOS = {};
         let cart = [];
@@ -1162,6 +1182,7 @@
                     };
                 }).filter(p => p.nombre && p.precio>0);
                 generarBrandChips();
+                generarTipoChips();
                 aplicarFiltros();
                 abrirDesdeURL();
             } catch(e) {
@@ -1199,10 +1220,45 @@
             });
         }
 
+        function generarTipoChips() {
+            const tipos = [...new Set(allProducts.map(p=>p.tipo).filter(Boolean))].sort();
+            const wrap = document.getElementById('tipoChipsWrap');
+            const row = document.getElementById('tipoChipsRow');
+            if (!tipos.length) { wrap.style.display='none'; return; }
+            row.innerHTML = '';
+            wrap.style.display = 'block';
+            const allBtn = document.createElement('button');
+            allBtn.className = 'tipo-chip active';
+            allBtn.setAttribute('data-tipo','todos');
+            allBtn.textContent = 'TODOS';
+            allBtn.addEventListener('click', ()=>seleccionarTipo('todos', allBtn));
+            row.appendChild(allBtn);
+            tipos.forEach(tipo => {
+                const btn = document.createElement('button');
+                btn.className = 'tipo-chip';
+                btn.setAttribute('data-tipo', tipo);
+                btn.textContent = tipo.toUpperCase();
+                btn.addEventListener('click', ()=>seleccionarTipo(tipo, btn));
+                row.appendChild(btn);
+            });
+        }
+
+        function seleccionarTipo(tipo, btnActivo) {
+            document.querySelectorAll('.tipo-chip').forEach(b=>b.classList.remove('active'));
+            btnActivo.classList.add('active');
+            tipoFilter = tipo;
+            aplicarFiltros();
+            document.getElementById('catalogo').scrollIntoView({behavior:'smooth',block:'start'});
+        }
+
         function seleccionarMarca(marca, btnActivo) {
             document.querySelectorAll('.brand-chip').forEach(b=>b.classList.remove('active'));
             btnActivo.classList.add('active');
             catFilter = marca;
+            tipoFilter = 'todos';
+            document.querySelectorAll('.tipo-chip').forEach(b=>b.classList.remove('active'));
+            const allTipoBtn = document.querySelector('.tipo-chip[data-tipo="todos"]');
+            if (allTipoBtn) allTipoBtn.classList.add('active');
             aplicarFiltros();
             document.getElementById('catalogo').scrollIntoView({behavior:'smooth',block:'start'});
         }
@@ -1210,6 +1266,7 @@
         function aplicarFiltros() {
             let lista = [...allProducts];
             if (catFilter !== 'todos') lista = lista.filter(p=>p.marca===catFilter);
+            if (tipoFilter !== 'todos') lista = lista.filter(p=>p.tipo===tipoFilter);
             if (sortMode === 'precio-asc') lista.sort((a,b)=>(a.precioOferta||a.precio)-(b.precioOferta||b.precio));
             if (sortMode === 'precio-desc') lista.sort((a,b)=>(b.precioOferta||b.precio)-(a.precioOferta||a.precio));
             if (sortMode === 'nombre') lista.sort((a,b)=>a.nombre.localeCompare(b.nombre));
