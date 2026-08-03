@@ -97,6 +97,17 @@
         .nav-links a:hover::after { width: 100%; }
         .nav-actions { display: flex; align-items: center; gap: 12px; }
 
+        /* Badge de la promo de remeras, ahora vive en el nav */
+        .nav-promo {
+            display: flex; align-items: center; gap: 6px;
+            font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.06em;
+            color: var(--red); border: 1px solid rgba(209,0,0,0.4);
+            padding: 6px 10px; white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-promo strong { color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-weight: 800; letter-spacing: 0.02em; }
+        .nav-promo .full { display: inline; }
+        .nav-promo .short { display: none; }
+
         /* Nav mobile links */
         .nav-mobile-menu {
             display: none;
@@ -154,37 +165,33 @@
         }
         .cart-badge.visible { display: flex; }
 
-        /* ── HERO ── */
-        .hero-video {
+        /* ── HERO — scroll-scrub (mismo motor que armaste para el fabricante) ── */
+        .hero-scrub {
             position: relative;
+            height: 240vh; /* alto extra = "espacio" para scrollear el giro/entrada del buzo */
+        }
+        .hero-video {
+            position: sticky;
+            top: 0;
             width: 100%;
-            height: 92vh;
+            height: 100vh;
             overflow: hidden;
             background: #000;
         }
-        /* Desktop: YouTube */
-        .yt-bg { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-        .yt-bg iframe {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100vw; height: 56.25vw;
-            min-height: 100vh; min-width: 177.78vh;
-            transform: translate(-50%,-50%);
-            border: none;
+        .hero-canvas-wrap { position: absolute; inset: 0; z-index: 0; }
+        .hero-canvas-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        /* fondo animado mientras cargan los frames (o si no hay frames configurados) */
+        .hero-fallback {
+            position: absolute; inset: 0; overflow: hidden;
+            background: radial-gradient(120% 90% at 50% 15%, #1a0000 0%, #0a0a0a 60%);
         }
-        /* Mobile: imagen estática */
-        .hero-img-mobile {
-            display: none !important;
-            position: absolute;
-            inset: 0;
+        .hero-fallback::before, .hero-fallback::after {
+            content: ''; position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; mix-blend-mode: screen;
         }
-        .hero-img-mobile img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center top;
-            display: block;
-        }
+        .hero-fallback::before { width: 60vw; height: 60vw; left: -10vw; top: -10vw; background: radial-gradient(circle, rgba(209,0,0,0.5), transparent 65%); animation: heroDrift1 22s ease-in-out infinite; }
+        .hero-fallback::after { width: 55vw; height: 55vw; right: -12vw; bottom: -14vw; background: radial-gradient(circle, #2a2a2a, transparent 65%); animation: heroDrift2 26s ease-in-out infinite; }
+        @keyframes heroDrift1 { 50%{ transform: translate(14vw,10vh) scale(1.15); } }
+        @keyframes heroDrift2 { 50%{ transform: translate(-12vw,-8vh) scale(1.1); } }
         .hero-overlay {
             position: absolute; inset: 0;
             background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.7) 75%, rgba(10,10,10,0.92) 100%);
@@ -254,14 +261,97 @@
         .hero-scroll-arrow { font-size: 14px; color: var(--red); animation: bounceDown 1.5s ease-in-out infinite; }
         @keyframes scrollPulse { 0%,100%{opacity:0.3}50%{opacity:1} }
         @keyframes bounceDown { 0%,100%{transform:translateY(0);opacity:0.6}50%{transform:translateY(6px);opacity:1} }
-        .hero-mute {
-            position: absolute; top: 88px; right: 24px; z-index: 10;
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(209,0,0,0.3);
-            color: var(--white); width: 40px; height: 40px; border-radius: 50%;
-            cursor : default; display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: all 0.2s; backdrop-filter: blur(6px);
+
+        /* ── DROP HOODIES (teaser, sin fotos todavía) ── */
+        .drop-section {
+            position: relative;
+            background: var(--black);
+            border-bottom: 1px solid var(--gray);
+            padding: 96px 48px 88px;
+            overflow: hidden;
         }
-        .hero-mute:hover { background: var(--red); border-color: var(--red); }
+        .drop-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(209,0,0,0.035) 0px, rgba(209,0,0,0.035) 1px, transparent 1px, transparent 10px),
+                repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 10px);
+            pointer-events: none;
+        }
+        .drop-inner { position: relative; max-width: 1240px; margin: 0 auto; }
+        .drop-eyebrow {
+            display: flex; align-items: center; gap: 14px;
+            font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.35em;
+            text-transform: uppercase; color: var(--red); margin-bottom: 20px;
+        }
+        .drop-eyebrow::before { content: ''; width: 40px; height: 1px; background: var(--red); }
+        .drop-eyebrow .drop-eyebrow-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--red);
+            box-shadow: 0 0 8px var(--red); animation: dotPulse 1.8s ease-in-out infinite; margin-left: 4px;
+        }
+        .drop-title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; flex-wrap: wrap; margin-bottom: 28px; }
+        .drop-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(64px, 11vw, 160px);
+            line-height: 0.86; letter-spacing: 0.01em;
+            background-image: repeating-linear-gradient(115deg, var(--white) 0px, var(--white) 6px, #9a9a9a 6px, #9a9a9a 8px, var(--white) 8px, var(--white) 22px);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .drop-desc {
+            max-width: 380px;
+            font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 500;
+            line-height: 1.5; color: rgba(240,237,232,0.7);
+            padding-bottom: 8px;
+        }
+        .drop-cta-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 56px; }
+        .drop-btn-notify {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--white); color: var(--black);
+            font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            padding: 15px 32px; text-decoration: none; border: none; cursor: default;
+            transition: background 0.2s, color 0.2s;
+        }
+        .drop-btn-notify:hover { background: var(--red); color: var(--white); }
+        .drop-status {
+            font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--gray-light);
+        }
+        .drop-status strong { color: var(--white); }
+        .drop-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--gray); border: 1px solid var(--gray); }
+        .drop-card { background: var(--black-2); position: relative; overflow: hidden; cursor: default; transition: background 0.2s; }
+        .drop-card:hover { background: var(--black-3); }
+        .drop-card-link { display: block; text-decoration: none; color: inherit; }
+        .drop-card-swatch {
+            aspect-ratio: 4/5; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .drop-card-swatch::after {
+            content: ''; position: absolute; inset: 0;
+            background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 2px, transparent 2px, transparent 4px),
+                               repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0.12) 2px, transparent 2px, transparent 4px);
+        }
+        .drop-card-icon { position: relative; z-index: 2; font-size: 44px; opacity: 0.28; filter: grayscale(1) brightness(2); }
+        .drop-card-tag {
+            position: absolute; top: 12px; left: 12px; z-index: 3;
+            background: var(--white); color: var(--black);
+            font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 800;
+            letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 9px;
+        }
+        .drop-card-info { padding: 16px 18px 20px; border-top: 1px solid var(--gray); }
+        .drop-card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 4px; }
+        .drop-card-note { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gray-light); letter-spacing: 0.06em; }
+        @media(max-width:900px) {
+            .drop-section { padding: 44px 12px 40px; }
+            .drop-desc { max-width: 100%; }
+            .drop-grid { gap: 1px; }
+            .drop-card-info { padding: 12px 10px 14px; }
+            .drop-card-name { font-size: 12px; line-height: 1.28; }
+            .drop-card-note { font-size: 8.5px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+            .drop-card-tag { font-size: 9px; padding: 4px 7px; top: 8px; left: 8px; }
+            .drop-card-icon { font-size: 38px; }
+            .drop-card-swatch { aspect-ratio: 3/4; }
+        }
 
         /* ── BRAND CHIPS ── */
         #heroChipsWrap { animation: fadeUp 0.8s 0.5s both; }
@@ -376,30 +466,22 @@
         /* ── BULK PROMO BANNER ── */
         .bulk-promo-banner {
             position: relative; overflow: hidden;
-            background: linear-gradient(135deg, #1a0000 0%, #2d0000 40%, #1a0000 100%);
-            border-top: 1px solid rgba(209,0,0,0.5);
-            border-bottom: 1px solid rgba(209,0,0,0.5);
+            background: var(--black-2);
+            border-top: 1px solid var(--gray);
+            border-bottom: 1px solid var(--gray);
             padding: 0; cursor: default;
         }
-        .bulk-promo-banner::before {
-            content: '';
-            position: absolute; top: 0; left: -100%;
-            width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(209,0,0,0.08), transparent);
-            animation: promoScan 3s ease-in-out infinite;
-            pointer-events: none;
-        }
-        @keyframes promoScan { 0%{left:-60%} 100%{left:110%} }
         .bulk-promo-inner {
             display: flex; align-items: center; justify-content: space-between;
             gap: 24px; padding: 20px 48px; flex-wrap: wrap;
         }
-        .bulk-promo-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .bulk-promo-fire {
-            font-size: 36px; line-height: 1; flex-shrink: 0;
-            animation: fireShake 0.6s ease-in-out infinite alternate;
+        .bulk-promo-left { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .bulk-promo-mark {
+            font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.1em;
+            color: var(--black); background: var(--red);
+            width: 40px; height: 40px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
         }
-        @keyframes fireShake { from{transform:rotate(-6deg) scale(1)} to{transform:rotate(6deg) scale(1.1)} }
         .bulk-promo-text { display: flex; flex-direction: column; gap: 2px; }
         .bulk-promo-tag {
             font-family: 'Space Mono', monospace;
@@ -408,7 +490,7 @@
         }
         .bulk-promo-headline {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(20px, 3.5vw, 34px);
+            font-size: clamp(20px, 3.5vw, 32px);
             letter-spacing: 0.04em; line-height: 1; color: var(--white);
         }
         .bulk-promo-headline em { color: var(--red); font-style: normal; }
@@ -421,23 +503,19 @@
         .bulk-price-box {
             display: flex; flex-direction: column; align-items: center;
             padding: 10px 16px;
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(209,0,0,0.2);
+            background: rgba(0,0,0,0.4); border: 1px solid var(--gray);
         }
         .bulk-price-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-light); margin-bottom: 2px; }
         .bulk-price-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.04em; line-height: 1; }
         .bulk-price-val.old { color: var(--gray-light); text-decoration: line-through; font-size: 18px; }
         .bulk-price-val.new { color: #22c55e; }
-        .bulk-arrow { font-size: 20px; color: var(--red); animation: arrowPulse 0.9s ease-in-out infinite alternate; flex-shrink:0; }
-        @keyframes arrowPulse { from{transform:translateX(0);opacity:0.5} to{transform:translateX(5px);opacity:1} }
+        .bulk-arrow { font-size: 20px; color: var(--red); flex-shrink:0; }
         .bulk-badge {
             background: var(--red); color: var(--white);
             font-family: 'Bebas Neue', sans-serif;
             font-size: 18px; letter-spacing: 0.1em;
             padding: 6px 12px; flex-shrink: 0;
-            box-shadow: 0 0 16px rgba(209,0,0,0.5);
-            animation: badgePulse 2s ease-in-out infinite;
         }
-        @keyframes badgePulse { 0%,100%{box-shadow:0 0 16px rgba(209,0,0,0.5)} 50%{box-shadow:0 0 28px rgba(209,0,0,0.9)} }
 
         /* ── SECTION HEADER ── */
         .section-header {
@@ -487,13 +565,15 @@
         }
         .product-img-wrap::after {
             content: 'VER DETALLES';
-            position: absolute; inset: 0;
-            background: rgba(209,0,0,0.88);
+            position: absolute; left: 0; right: 0; bottom: 0;
+            background: rgba(10,10,10,0.9); border-top: 1px solid var(--red);
+            padding: 10px 0;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.25em;
-            color: var(--white); opacity: 0; transition: opacity 0.25s ease;
+            font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 0.25em;
+            color: var(--white); opacity: 0; transform: translateY(8px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
-        .product-card:hover .product-img-wrap::after { opacity: 1; }
+        .product-card:hover .product-img-wrap::after { opacity: 1; transform: translateY(0); }
         .product-badges { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 3; }
         .product-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; display: inline-block; width: fit-content; }
         .pb-new { background: var(--white); color: var(--black); }
@@ -826,10 +906,11 @@
         @media(max-width:900px) {
             nav { padding: 0 16px; }
             .nav-links { display: none; }
-            .nav-mobile-menu { display: flex !important; }
-            /* En mobile ocultamos el video y mostramos imagen */
-            .hero-img-mobile { display: block; }
-            .hero-mute { display: none; }
+            /* En mobile el nav queda solo con logo + carrito — el resto de los links viven en el footer */
+            .nav-mobile-menu { display: none !important; }
+            .nav-logo { font-size: 19px; }
+            .cart-btn { padding: 8px 10px; }
+            /* Hero: el canvas de frames se reusa igual en mobile y desktop */
             .hero-content { padding: 0 20px 48px; }
             .hero-title-big { font-size: clamp(56px,16vw,96px); }
             .hero-scroll { display: none; }
@@ -839,10 +920,17 @@
             .product-grid { grid-template-columns: repeat(2,1fr); }
             .section-header { padding: 36px 20px 24px; }
             .filters-bar { padding: 10px 20px; }
-            .bulk-promo-inner { padding: 14px 20px; gap: 10px; }
+            /* Banner de oferta: una sola línea, ocupa menos espacio */
+            .bulk-promo-inner { padding: 12px 20px; gap: 8px; }
             .bulk-promo-right { display: none; }
-            .bulk-promo-headline { font-size: 20px; }
-            .trust-bar { gap: 16px; padding: 10px 16px; }
+            .bulk-promo-mark { width: 32px; height: 32px; font-size: 11px; }
+            .bulk-promo-headline { font-size: 17px; }
+            .bulk-promo-sub { display: none; }
+            /* Strip decorativo: se saca en mobile, no aporta a la decisión de compra */
+            .strip { display: none; }
+            /* Trust bar: solo lo esencial, una sola línea */
+            .trust-bar { gap: 18px; padding: 9px 16px; overflow-x: hidden; justify-content: center; }
+            .trust-item:nth-child(1) { display: none; }
             .trust-item-text { font-size: 11px; }
         }
     </style>
@@ -852,11 +940,12 @@
     <nav id="mainNav">
         <a href="/pilchas" class="nav-logo">NERIVA<span>_</span>PILCHAS</a>
         <ul class="nav-links">
-            <li><a href="/">🛍️ Tienda tech</a></li>
-            <li><a href="/pilchas" style="color:var(--red)">👕 Pilchas</a></li>
-            <li><a href="/referidos">🔗 Ref</a></li>
-            <li><a href="/revendedores">💰 Rev</a></li>
-            <li><a href="https://wa.me/5491128330853" target="_blank" style="color:#25d366">WSP</a></li>
+            <li><a href="/">Tienda Tech</a></li>
+            <li><a href="/pilchas" style="color:var(--red)">Pilchas</a></li>
+            <li><a href="#drop">Drop 001</a></li>
+            <li><a href="/referidos">Referidos</a></li>
+            <li><a href="/revendedores">Revendé</a></li>
+            <li><a href="https://wa.me/5491128330853" target="_blank" style="color:#25d366">WhatsApp</a></li>
         </ul>
         <div class="nav-actions">
             <!-- Links visibles en mobile -->
@@ -867,42 +956,65 @@
             </div>
             <button class="cart-btn" id="cartToggleBtn" onclick="toggleCart()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                CARRITO
+                <span class="cart-btn-label">CARRITO</span>
                 <span class="cart-badge" id="cartBadge">0</span>
             </button>
         </div>
     </nav>
 
-    <!-- HERO -->
-    <section class="hero-video">
-        <!-- Desktop: YouTube background -->
-        <div class="yt-bg" id="ytBg"><div id="ytPlayer"></div></div>
-        <!-- Mobile: imagen estática — REEMPLAZÁ la URL con tu foto -->
-        <div class="hero-img-mobile">
-            <img src="TU_IMAGEN_HERO_MOBILE_AQUI" alt="NERIVA Pilchas"
-                 onerror="this.parentNode.style.background='linear-gradient(160deg,#1a0000 0%,#0a0a0a 60%)'">
-        </div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <div class="hero-season">Pilcha streetwear — FW26</div>
-            <h1 class="hero-title-big"><em>NERIVA PILCHAS</em></h1>
-            <div id="heroChipsWrap" style="margin-top:20px;">
-                <div class="brand-chips-row" id="brandChipsRow"></div>
+    <!-- HERO — scroll-scrub: se arma con una secuencia de fotos (frames), igual que en FICLOSW -->
+    <section class="hero-scrub" id="heroScrub">
+        <div class="hero-video" id="heroStage">
+            <div class="hero-fallback" id="heroFallback"></div>
+            <div class="hero-canvas-wrap"><canvas id="heroCanvas"></canvas></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-season">Pilcha Drip — La mejor calidad</div>
+                <h1 class="hero-title-big"><em>NERIVA PILCHAS</em></h1>
+                <div id="heroChipsWrap" style="margin-top:20px;">
+                    <div class="brand-chips-row" id="brandChipsRow"></div>
+                </div>
+                <div id="tipoChipsWrap" style="animation: fadeUp 0.8s 0.55s both; display:none;">
+                    <div class="tipo-chips-row" id="tipoChipsRow"></div>
+                </div>
+                <div class="hero-ctas">
+                    <a href="#catalogo" class="btn-primary">Ver Colección</a>
+                    <a href="https://wa.me/5491128330853" target="_blank" class="btn-ghost">💬 WhatsApp</a>
+                </div>
             </div>
-            <div id="tipoChipsWrap" style="animation: fadeUp 0.8s 0.55s both; display:none;">
-                <div class="tipo-chips-row" id="tipoChipsRow"></div>
-            </div>
-            <div class="hero-ctas">
-                <a href="#catalogo" class="btn-primary">Ver Colección</a>
-                <a href="https://wa.me/5491128330853" target="_blank" class="btn-ghost">💬 WhatsApp</a>
+            <div class="hero-scroll">
+                <span>Scroll</span>
+                <div class="scroll-line"></div>
+                <div class="hero-scroll-arrow">▼</div>
             </div>
         </div>
-        <div class="hero-scroll">
-            <span>Scroll</span>
-            <div class="scroll-line"></div>
-            <div class="hero-scroll-arrow">▼</div>
+    </section>
+
+    <!-- DROP HOODIES — teaser sin fotos, se reemplaza por catálogo real cuando estén las prendas -->
+    <section class="drop-section" id="drop">
+        <div class="drop-inner">
+            <div class="drop-eyebrow">NERIVA LABS — DROP 001 <span class="drop-eyebrow-dot"></span></div>
+            <div class="drop-title-row">
+                <h2 class="drop-title">HOODIES</h2>
+                <p class="drop-desc">Algodón peinado pesado, cierre metálico de punta a punta, calce oversize. Ya está afuera: la nueva colección de buzos canguro con cierre de NERIVA. Stock limitado por color y talle.</p>
+            </div>
+            <div class="drop-cta-row">
+                <a href="https://wa.me/5491128330853?text=Hola!%20Vi%20el%20DROP%20001%20de%20buzos%20cierre%20NERIVA%20y%20quiero%20consultar%20stock%20y%20talles" target="_blank" class="drop-btn-notify">Comprar por WhatsApp</a>
+                <span class="drop-status">Estado: <strong>disponible ahora</strong> — stock limitado</span>
+            </div>
+            <div class="drop-grid" id="dropGrid">
+                <div class="drop-card">
+                    <div class="drop-card-swatch" style="background:linear-gradient(155deg,#1a1a1a,#050505);">
+                        <span class="drop-card-tag">Cargando…</span>
+                        <span class="drop-card-icon">⬡</span>
+                    </div>
+                    <div class="drop-card-info">
+                        <div class="drop-card-name">&nbsp;</div>
+                        <div class="drop-card-note">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button class="hero-mute" id="muteBtn" title="Activar/silenciar sonido">🔇</button>
     </section>
 
     <!-- STRIP -->
@@ -919,59 +1031,9 @@
         </div>
     </div>
 
-    <!-- TRUST BAR -->
-    <div class="trust-bar">
-        <div class="trust-item">
-            <span class="trust-stars">★★★★★</span>
-            <span class="trust-item-text">+200 ventas</span>
-        </div>
-        <div class="trust-item">
-            <span class="trust-item-icon">💬</span>
-            <span class="trust-item-text">Pago por WhatsApp</span>
-        </div>
-        <div class="trust-item">
-            <span class="trust-item-icon">🚚</span>
-            <span class="trust-item-text">Envíos CABA 24hs</span>
-        </div>
-        <div class="trust-item">
-            <span class="trust-item-icon">🔄</span>
-            <span class="trust-item-text">Cambios sin drama</span>
-        </div>
-        <div class="trust-item">
-            <span class="trust-item-icon">🔒</span>
-            <span class="trust-item-text">Compra segura</span>
-        </div>
-    </div>
-
-    <!-- BULK PROMO BANNER -->
-    <div class="bulk-promo-banner">
-        <div class="bulk-promo-inner">
-            <div class="bulk-promo-left">
-                <div class="bulk-promo-fire">🔥</div>
-                <div class="bulk-promo-text">
-                    <div class="bulk-promo-tag">Oferta exclusiva web — Solo remeras</div>
-                    <div class="bulk-promo-headline">5 REMERAS = <em>$25.000</em> C/U</div>
-                    <div class="bulk-promo-sub">Llevá 5 o más y el precio baja automáticamente</div>
-                </div>
-            </div>
-            <div class="bulk-promo-right">
-                <div class="bulk-price-box">
-                    <div class="bulk-price-label">Precio normal</div>
-                    <div class="bulk-price-val old">$30.000</div>
-                </div>
-                <div class="bulk-arrow">→</div>
-                <div class="bulk-price-box">
-                    <div class="bulk-price-label">Con la promo</div>
-                    <div class="bulk-price-val new">$25.000</div>
-                </div>
-                <div class="bulk-badge">−17%</div>
-            </div>
-        </div>
-    </div>
-
     <!-- CATÁLOGO -->
     <div id="catalogo">
-        <div class="section-header">
+        <div class="section-header" style="display:none;">
             <h2 class="section-title">DESTA<span>CADOS</span></h2>
             <span class="results-count" id="resultsCount"><strong>—</strong> productos</span>
         </div>
@@ -1093,7 +1155,6 @@
         <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         const SHEET_ID = '11cgwoDZwEC4KqjD-5dOHucJ2wsWvMK2QmDAYQDmXvyQ';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Ropa`;
@@ -1124,25 +1185,81 @@
             return item.precio;
         }
 
-        // YouTube — solo desktop
-        const YT_VIDEO_ID = 'SkDc2yVNjcU';
-        let ytPlayer, isMuted = true;
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('ytPlayer', {
-                videoId: YT_VIDEO_ID,
-                playerVars: { autoplay:1, mute:1, loop:1, playlist:YT_VIDEO_ID, controls:0, showinfo:0, rel:0, modestbranding:1, playsinline:1, fs:0, cc_load_policy:0, iv_load_policy:3, autohide:1, disablekb:1 },
-                events: {
-                    onReady: e => { e.target.mute(); e.target.playVideo(); },
-                    onStateChange: e => { if (e.data === YT.PlayerState.PAUSED) setTimeout(()=>e.target.playVideo(),200); }
-                }
+        /* ── HERO SCROLL-SCRUB ──────────────────────────────────────────
+           Misma técnica que en FICLOSW: una carpeta de fotos (frames)
+           numeradas, y a medida que el usuario scrollea se dibuja el
+           frame correspondiente en el canvas. Subí tus fotos a la carpeta
+           /public/frames/ de tu proyecto de Vercel y ajustá HERO_FRAMES. */
+        const HERO_FRAMES = {
+            path: 'frames/frame-',   // ej: frames/frame-0001.jpg
+            count: 64,                // cuántas fotos tenés en la secuencia
+            padding: 4,                // frame-0001 = padding 4
+            ext: 'jpg'
+        };
+        let heroFrameImgs = [];
+
+        async function preloadHeroFrames() {
+            const { path, count, padding, ext } = HERO_FRAMES;
+            const pad = n => String(n).padStart(padding, '0');
+            heroFrameImgs = new Array(count);
+            const ok = await new Promise(res => {
+                const img = new Image();
+                img.onload = () => { heroFrameImgs[0] = img; res(true); };
+                img.onerror = () => res(false);
+                img.src = `${path}${pad(1)}.${ext}`;
             });
+            if (!ok) return; // sin frames configurados: se queda el fondo degradado
+            document.getElementById('heroFallback').style.display = 'none';
+            for (let i = 2; i <= count; i++) {
+                const img = new Image();
+                img.src = `${path}${pad(i)}.${ext}`;
+                heroFrameImgs[i - 1] = img;
+            }
         }
-        document.getElementById('muteBtn').addEventListener('click', () => {
-            if (!ytPlayer) return;
-            if (isMuted) { ytPlayer.unMute(); ytPlayer.setVolume(60); document.getElementById('muteBtn').textContent='🔊'; }
-            else { ytPlayer.mute(); document.getElementById('muteBtn').textContent='🔇'; }
-            isMuted = !isMuted;
-        });
+
+        function setupHeroCanvas() {
+            const canvas = document.getElementById('heroCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let currentIdx = 0;
+            function drawCurrent() {
+                const img = heroFrameImgs[currentIdx];
+                if (!img || !img.complete || !img.naturalWidth) return;
+                const cw = canvas.width, ch = canvas.height;
+                const ir = img.naturalWidth / img.naturalHeight, cr = cw / ch;
+                let dw, dh, dx, dy;
+                if (ir > cr) { dh = ch; dw = ch * ir; dx = (cw - dw) / 2; dy = 0; }
+                else { dw = cw; dh = cw / ir; dx = 0; dy = (ch - dh) / 2; }
+                ctx.clearRect(0, 0, cw, ch);
+                ctx.drawImage(img, dx, dy, dw, dh);
+            }
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; drawCurrent(); }
+            window.addEventListener('resize', resize, { passive: true });
+            resize();
+            window.__heroDrawProgress = progress => {
+                const count = HERO_FRAMES.count;
+                currentIdx = Math.min(count - 1, Math.round(progress * (count - 1)));
+                drawCurrent();
+            };
+        }
+
+        function setupHeroScrub() {
+            const wrap = document.getElementById('heroScrub');
+            if (!wrap) return;
+            function onScroll() {
+                const total = wrap.offsetHeight - window.innerHeight;
+                const rect = wrap.getBoundingClientRect();
+                const prog = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+                if (window.__heroDrawProgress) window.__heroDrawProgress(prog);
+                const content = document.querySelector('.hero-content');
+                if (content) {
+                    content.style.transform = `translateY(${prog * -60}px)`;
+                    content.style.opacity = String(1 - Math.max(0, (prog - 0.55) / 0.45));
+                }
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+        }
 
         window.addEventListener('scroll', () => {
             document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY>80);
@@ -1159,6 +1276,52 @@
                     if (nombre && logo && esUrl(logo)) BRAND_LOGOS[nombre] = logo;
                 });
             } catch(e) {}
+        }
+
+        const DROP_PLACEHOLDERS = [
+            { nombre:'Buzo Cierre Oversize — Negro', nota:'Algodón peinado 24.1 · cierre metálico · oversize', bg:'linear-gradient(155deg,#1a1a1a,#050505)', waTxt:'Buzo Cierre Oversize Negro' },
+            { nombre:'Buzo Cierre Oversize — Gris Melange', nota:'Algodón peinado 24.1 · cierre metálico · oversize', bg:'linear-gradient(155deg,#3a3a3a,#161616)', waTxt:'Buzo Cierre Oversize Gris Melange' },
+            { nombre:'Buzo Cierre Cropped — Bordó', nota:'Algodón peinado 24.1 · cierre metálico · cropped', bg:'linear-gradient(155deg,#2d0000,#0a0a0a)', waTxt:'Buzo Cierre Cropped Bordó' }
+        ];
+
+        function renderDropGrid() {
+            const grid = document.getElementById('dropGrid');
+            if (!grid) return;
+            const reales = allProducts.filter(p => (p.tipo||'').trim().toLowerCase() === 'buzo cierre').slice(0,3);
+            let html = '';
+            reales.forEach(p => {
+                const tieneOferta = p.precioOferta !== null;
+                const precioFinal = tieneOferta ? p.precioOferta : p.precio;
+                html += `
+                <div class="drop-card" onclick="abrirModal(allProducts.find(x=>x.id===${p.id}))">
+                    <div class="drop-card-swatch" style="background:#000;">
+                        <span class="drop-card-tag">Nuevo</span>
+                        ${p.imagen ? `<img src="${p.imagen}" alt="${san(p.nombre)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">` : `<span class="drop-card-icon">⬡</span>`}
+                    </div>
+                    <div class="drop-card-info">
+                        <div class="drop-card-name">${san(p.nombre)}</div>
+                        <div class="drop-card-note">$${fmt(precioFinal)}${tieneOferta?` <span style="text-decoration:line-through;color:var(--gray-light);">$${fmt(p.precio)}</span>`:''}</div>
+                    </div>
+                </div>`;
+            });
+            for (let i = reales.length; i < 3; i++) {
+                const ph = DROP_PLACEHOLDERS[i];
+                const waHref = `https://wa.me/${WA}?text=${encodeURIComponent('Hola! Me interesa el '+ph.waTxt+' del DROP 001 NERIVA, quiero consultar talles')}`;
+                html += `
+                <a class="drop-card-link" href="${waHref}" target="_blank">
+                <div class="drop-card">
+                    <div class="drop-card-swatch" style="background:${ph.bg};">
+                        <span class="drop-card-tag">Próximamente</span>
+                        <span class="drop-card-icon">⬡</span>
+                    </div>
+                    <div class="drop-card-info">
+                        <div class="drop-card-name">${ph.nombre}</div>
+                        <div class="drop-card-note">${ph.nota}</div>
+                    </div>
+                </div>
+                </a>`;
+            }
+            grid.innerHTML = html;
         }
 
         async function cargarProductos() {
@@ -1185,6 +1348,7 @@
                 generarBrandChips();
                 generarTipoChips();
                 aplicarFiltros();
+                renderDropGrid();
                 abrirDesdeURL();
             } catch(e) {
                 document.getElementById('productGrid').innerHTML = '<div class="grid-empty"><h3>Error al cargar</h3><p>Revisá tu conexión.</p></div>';
@@ -1583,6 +1747,9 @@
 
         updateCartUI();
         cargar();
+        setupHeroCanvas();
+        setupHeroScrub();
+        preloadHeroFrames();
     </script>
 </body>
 </html>
