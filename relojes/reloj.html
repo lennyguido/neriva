@@ -17,8 +17,13 @@
         .topbar { position:sticky; top:0; z-index:10; height:68px; display:flex; align-items:center; justify-content:space-between; padding:0 5vw; background:rgba(5,7,5,.94); border-bottom:1px solid var(--line); backdrop-filter:blur(16px); }
         .logo { color:var(--white); text-decoration:none; font:900 30px/1 'Bebas Neue',sans-serif; letter-spacing:.1em; }
         .logo span { color:var(--green); }
-        .nav-links { display:flex; gap:24px; list-style:none; }
-        .nav-links a { color:var(--muted); text-decoration:none; font:600 12px 'Barlow Condensed',sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+        .nav-links { display:flex; gap:32px; list-style:none; }
+        .nav-links a { position:relative; padding-bottom:2px; color:rgba(240,237,232,.8); text-decoration:none; font:600 13px 'Barlow Condensed',sans-serif; letter-spacing:.15em; text-transform:uppercase; transition:color .2s; }
+        .nav-links a::after { content:''; position:absolute; bottom:0; left:0; width:0; height:1px; background:var(--green); transition:width .25s ease; }
+        .nav-links a:hover { color:var(--white); }
+        .nav-links a:hover::after { width:100%; }
+        .nav-links a.active { color:var(--green); }
+        .nav-links a.active::after { width:100%; }
         .nav-links a:hover { color:var(--green); }
         .cart-button { display:flex; gap:9px; align-items:center; padding:9px 13px; border:1px solid rgba(0,204,68,.45); background:transparent; color:var(--white); font:700 11px 'Barlow Condensed',sans-serif; letter-spacing:.12em; text-transform:uppercase; }
         .cart-count { min-width:19px; height:19px; display:grid; place-items:center; border-radius:50%; background:var(--green); color:#031006; font:700 10px 'Space Mono',monospace; }
@@ -77,8 +82,14 @@
 </head>
 <body>
     <header class="topbar">
-        <a class="logo" href="../index.html">N<span>.</span>ERIVA</a>
-        <nav class="nav-links"><a href="../index.html">Inicio</a><a href="../pilchas/index.html">Pilchas</a><a href="reloj.html">Relojes</a></nav>
+        <a class="logo" href="../index.html">NERIVA</a>
+        <nav class="nav-links">
+            <a href="../index.html">Tienda</a>
+            <a href="../pilchas/index.html">Pilchas</a>
+            <a href="../drop-buzos.html">Drop 001</a>
+            <a href="reloj.html" class="active">Relojes</a>
+            <a href="https://wa.me/5491128330853" target="_blank" rel="noopener">WhatsApp</a>
+        </nav>
         <button class="cart-button" id="openCart">Carrito <span class="cart-count" id="cartCount">0</span></button>
     </header>
     <main>
