@@ -356,6 +356,13 @@ function paintModalButtons() {
     $('modalAdd').textContent = on ? 'En el carrito ✓ (quitar)' : 'Agregar al carrito';
     $('modalBuy').href = waLink(mensaje([selected]));
 }
+// cambia solo ?reloj= y deja el resto del link (por ejemplo ?ref=) como estaba
+function setParam(id) {
+    const params = new URLSearchParams(location.search);
+    if (id) params.set('reloj', id); else params.delete('reloj');
+    const q = params.toString();
+    history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash);
+}
 function openModal(id) {
     selected = id;
     const img = $('modalImage');
@@ -369,13 +376,14 @@ function openModal(id) {
     paintModalButtons();
     $('modal').classList.add('on');
     document.body.style.overflow = 'hidden';
-    history.replaceState(null, '', `${location.pathname}?reloj=${id}`);
+    setParam(id);
 }
 function closeModal() {
+    if (!selected) return;
     $('modal').classList.remove('on');
     selected = null;
     if (!$('cartDrawer').classList.contains('on')) document.body.style.overflow = '';
-    history.replaceState(null, '', location.pathname);
+    setParam(null);
 }
 const step = d => { if (selected) openModal((selected - 1 + d + TOTAL) % TOTAL + 1); };
 $('vPrev').addEventListener('click', e => { e.stopPropagation(); step(-1); });

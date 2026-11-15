@@ -10,8 +10,10 @@
         const cv = document.createElement('canvas');
         fx.appendChild(cv);
         const ctx = cv.getContext('2d');
-        let w, h, stars, last = 0;
+        let w, h, stars, last = 0, lastW = 0;
         const size = () => {
+            if (innerWidth === lastW && stars) return;   // en el celular, la barra del navegador cambia el alto: no rearmar
+            lastW = innerWidth;
             const dpr = Math.min(devicePixelRatio || 1, 2);
             w = cv.width = innerWidth * dpr; h = cv.height = innerHeight * dpr;
             const n = Math.round(Math.min(110, innerWidth / 9));
